@@ -9,12 +9,31 @@
 <body>
 <div id="ttt"></div>
 <script>
+    var data = [];
+    data.push({id : 1, title : 'test1', date: '2014-01-01' });
+    data.push({id : 2, title : 'test2', date: '2014-01-02' });
+    data.push({id : 3, title : 'test3', date: '2014-01-03' });
+
+    data_obj = {}
+    data_obj.rows = data;
+    data_obj.total = data.length;
+    data_obj.page = 1;
+    data_obj.page_num = 1;
+
     params = {
         id: 'ttt'
-        ,col_names: ['id', 'title', 'date', 222]
+        ,col_names: ['id', 'title', 'date']
+        ,dataType : 'array'
+        ,src: data_obj
+        ,cols:[
+            {index: 'id', name:'id' }
+            ,{index: 'title', name:'title' }
+            ,{index: 'date', name:'date' }
+        ]
     };
     var tbl = new tmsTable(params)
     tbl.render();
+
 
 </script>
 </body>
