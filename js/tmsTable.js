@@ -70,6 +70,15 @@ tmsTable = function (params) {
      */
     var _tbl_data = [];
 
+
+    /**
+     * CSS class
+     * @type {string}
+     * @private
+     */
+    var _tbl_class = '';
+
+
     tmsTable.instances = [];
 
 
@@ -117,11 +126,30 @@ tmsTable = function (params) {
             this.setSrc(params.src);
         }
 
+        if(params.class!==undefined && params.class !=''){
+            this.setCssClassName(params.class);
+        }
+
 
         // add instance to collection of same type objects
         tmsTable.instances.push(this);
         return this;
 
+    }
+
+    /**
+     * Set css classes for table
+     * @param class_name
+     * @returns {boolean}
+     */
+    this.setCssClassName = function (class_name){
+        if(class_name===undefined)this.errorWrongClass();
+
+        if(class_name!==undefined && class_name!=''){
+            _tbl_class = class_name;
+            return true;
+        }
+        return false;
     }
 
 
@@ -202,6 +230,7 @@ tmsTable = function (params) {
             cols_name_num = _tbl_col_names.length;
             if (!cols_name_num)this.errorWrongColNames(); // no column titles
 
+
             cols_num = _tbl_cols.length;
             if (!cols_num)this.errorWrongCols();
 
@@ -250,6 +279,9 @@ tmsTable = function (params) {
         var table_id = this.getTableId();
         var table = $('<table/>').attr('id', table_id);
 
+        if(_tbl_class!=''){
+            table.addClass(_tbl_class);
+        }
 
         var thead = $('<thead/>');
         table.append(thead);
@@ -299,6 +331,13 @@ tmsTable = function (params) {
      */
     this.errorWrongId = function () {
         throw 'Error: Invalid table ID';
+    }
+
+    /**
+     * throw error Wrong css class
+     */
+    this.errorWrongClass = function () {
+        throw 'Error: Invalid css class';
     }
 
     /**
