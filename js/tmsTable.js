@@ -78,6 +78,13 @@ tmsTable = function (params) {
      */
     var _tbl_class = '';
 
+    /**
+     * data url
+     * @type {string}
+     * @private
+     */
+    var _tbl_url = '';
+
 
     tmsTable.instances = [];
 
@@ -110,6 +117,16 @@ tmsTable = function (params) {
                 this.errorWrongDataType();
             }
             this.setDataType(params.dataType);
+
+            if (params.dataType == 'jsonp') {
+
+                if (params.url === undefined || params.url == '') {
+                    this.errorWrongUrl();
+                    this.setUrl(params.url);
+
+                }
+
+            }
         }
 
         // checking data identity map
@@ -126,7 +143,8 @@ tmsTable = function (params) {
             this.setSrc(params.src);
         }
 
-        if(params.class!==undefined && params.class !=''){
+
+        if (params.class !== undefined && params.class != '') {
             this.setCssClassName(params.class);
         }
 
@@ -142,11 +160,20 @@ tmsTable = function (params) {
      * @param class_name
      * @returns {boolean}
      */
-    this.setCssClassName = function (class_name){
-        if(class_name===undefined)this.errorWrongClass();
+    this.setCssClassName = function (class_name) {
+        if (class_name === undefined)this.errorWrongClass();
 
-        if(class_name!==undefined && class_name!=''){
+        if (class_name !== undefined && class_name != '') {
             _tbl_class = class_name;
+            return true;
+        }
+        return false;
+    }
+    this.setUrl = function (url) {
+        if (url === undefined)this.errorWrongUrl();
+
+        if (url !== undefined && url != '') {
+            _tbl_url = url;
             return true;
         }
         return false;
@@ -279,7 +306,7 @@ tmsTable = function (params) {
         var table_id = this.getTableId();
         var table = $('<table/>').attr('id', table_id);
 
-        if(_tbl_class!=''){
+        if (_tbl_class != '') {
             table.addClass(_tbl_class);
         }
 
@@ -297,7 +324,7 @@ tmsTable = function (params) {
         tbody = $('<tbody/>');
 
         n = _tbl_data.length;
-        for(i=0;i<n;i++){
+        for (i = 0; i < n; i++) {
             body_row = $('<tr/>');
 
             for (var key in _tbl_data[i]) {
@@ -309,9 +336,32 @@ tmsTable = function (params) {
 
             tbody.append(body_row);
         }
+
         table.append(tbody)
 
 
+        var tfoot = $('<tfoot/>');
+        var tfoot_tr = $('<tr/>');
+        var tfoot_td = $('<td/>').attr('colspan',columns_number);
+        tfoot_tr.append(tfoot_td);
+        tfoot.append(tfoot_tr);
+
+        var page_selector = $('<select/>').addClass('page_select');
+        for(p=1;p<= _tbl_page_num;p++){
+            var opt=$('<option/>').val(p).text(p);
+            page_selector.append(opt);
+            if(p==_tbl_page)page_selector.val(p);
+        }
+
+
+        tfoot_td.append($('<label/>').text('Page:'));
+        tfoot_td.append(page_selector);
+        tfoot_td.append($('<label/>').text(' of: '+_tbl_page_num+'; '));
+
+        tfoot_td.append($('<label/>').text(' Total:'+_tbl_total));
+
+
+        table.append(tfoot);
         container.append(table);
     }
 
@@ -323,6 +373,37 @@ tmsTable = function (params) {
     this.getTableId = function () {
         if (_tbl_container_id === null)this.errorWrongId();
         return 'tbl_' + _tbl_container_id;
+    }
+
+
+    this.loadRows = function () {
+        if (_tbl_url == '')this.errorWrongUrl();
+
+        $.ajax({
+            type: "POST",
+            url: _tbl_url,
+            dataType: 'json',
+            statusCode: {
+                404: function () {
+                    throw 'page 404';
+                }
+                , 500: function () {
+                    throw  'page 500';
+                }
+            }
+            , success: function (response) {
+                if (response.success != undefined && response.success) {
+                    console.log(response.rows);
+                }
+                else {
+                    if (response.msg !== undefined) {
+                        throw response.msg;
+                    }
+                }
+            }
+            , complite: function () {
+            }
+        });
     }
 
 
@@ -351,21 +432,28 @@ tmsTable = function (params) {
      * throw error Wrong data src
      */
     this.errorWrongDataSrc = function (text) {
-        throw 'Error: Wrong data srs '+(text===undefined?'':text);
+        throw 'Error: Wrong data srs ' + (text === undefined ? '' : text);
     }
 
     /**
      * throw error Wrong src data type
      */
     this.errorWrongDataType = function (text) {
-        throw 'Error: Wrong src Data type '+(text===undefined?'':text);
+        throw 'Error: Wrong src Data type ' + (text === undefined ? '' : text);
     }
 
     /**
      * throw error wrong column model
      */
     this.errorWrongCols = function (text) {
-        throw 'Error: Wrong column model '+(text===undefined?'':text);
+        throw 'Error: Wrong column model ' + (text === undefined ? '' : text);
+    }
+
+    /**
+     * throw error wrong url
+     */
+    this.errorWrongUrl = function () {
+        throw 'Error: Wrong url';
     }
 
     /**

@@ -15,6 +15,8 @@
 </head>
 <body>
 <div id="ttt"></div>
+
+<div id="json_ttt"></div>
 <script>
     var data = [];
     data.push({id : 1, title : 'test1', date: '2014-01-01' });
@@ -25,7 +27,8 @@
     data_obj.rows = data;
     data_obj.total = data.length;
     data_obj.page = 1;
-    data_obj.page_num = 1;
+    data_obj.page_num = 2;
+
 
     params = {
         id: 'ttt'
@@ -39,9 +42,25 @@
             ,{index: 'date', name:'date' }
         ]
     };
+
+    json_params = {
+        id: 'json_ttt'
+        ,class: 'table table-bordered table-striped table-hover'
+        ,col_names: ['id', 'title', 'date']
+        ,dataType : 'jsonp'
+        ,url: 'data.json'
+        ,cols:[
+            {index: 'id', name:'id' }
+            ,{index: 'title', name:'title' }
+            ,{index: 'date', name:'date' }
+        ]
+    };
+
     var tbl = new tmsTable(params)
     tbl.render();
 
+    var json_tbl = new tmsTable(json_params)
+    json_tbl.render();
 
 </script>
 </body>
