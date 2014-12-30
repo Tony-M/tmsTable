@@ -336,20 +336,11 @@ tmsTable = function (params) {
 
             __span_pages.text(_tbl_page_num);
             __span_total.text(_tbl_total);
-            this.refreshSelectPages();
+            __select_page.val(_tbl_page);
             return true;
         }
         this.errorWrongDataType(_tbl_dataType);
         return false;
-    }
-
-    this.refreshSelectPages = function () {
-        __select_page.empty();
-        for (p = 1; p <= _tbl_page_num; p++) {
-            var opt = $('<option/>').val(p).text(p);
-            __select_page.append(opt);
-            if (p == _tbl_page)__select_page.val(p);
-        }
     }
 
 
@@ -374,9 +365,11 @@ tmsTable = function (params) {
         if (_tbl_container_id === null)this.errorWrongId();
 
         var container = $('#' + _tbl_container_id);
+
+        container.addClass('tmsTable tmsTable_container')
         var table_id = this.getTableId();
         __table = $('<table/>').attr('id', table_id);
-
+        __table.addClass('tmsTable');
         if (_tbl_class != '') {
             __table.addClass(_tbl_class);
         }
@@ -392,12 +385,12 @@ tmsTable = function (params) {
             var sort = $('<span/>');
             var sort_asc = $('<span/>').addClass('orderasc').html('&uArr;');
             var sort_desc = $('<span/>').addClass('orderdesc').html('&dArr;');
-            if(_tbl_order_by==_tbl_cols[i].index){
-                if(_tbl_order_direction=='asc')
-                     sort_desc.addClass('hidden');
+            if (_tbl_order_by == _tbl_cols[i].index) {
+                if (_tbl_order_direction == 'asc')
+                    sort_desc.addClass('hidden');
                 else
-                     sort_asc.addClass('hidden');
-            }else{
+                    sort_asc.addClass('hidden');
+            } else {
                 sort_desc.addClass('hidden');
                 sort_asc.addClass('hidden');
             }
@@ -409,8 +402,8 @@ tmsTable = function (params) {
                 h_row.find('.orderasc, .orderdesc').each(function () {
                     if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
                 });
-                console.log('.order' + _tbl_order_direction+':first');
-                $(this).find('.order' + _tbl_order_direction+':first').removeClass('hidden');
+                console.log('.order' + _tbl_order_direction + ':first');
+                $(this).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
             })
 
             h_row.append(h_td);
@@ -430,10 +423,18 @@ tmsTable = function (params) {
         tfoot_tr.append(tfoot_td);
         __tfoot.append(tfoot_tr);
 
-        __select_page = $('<select/>');
+        __select_page = $('<input/>').val(_tbl_page).attr('type', 'text');
         __select_page.addClass('page_select');
 
-        this.refreshSelectPages();
+
+        var a_refresh = $('<a/>').attr('class', 'table_refresh').text('Reload');
+        tfoot_td.append(a_refresh);
+
+        var a_gofirts = $('<a/>').addClass('gofirts');
+        tfoot_td.append(a_gofirts);
+
+        var a_goprevious = $('<a/>').addClass('goprevious');
+        tfoot_td.append(a_goprevious);
 
 
         tfoot_td.append($('<label/>').text('Page:'));
@@ -443,9 +444,14 @@ tmsTable = function (params) {
         tfoot_td.append(label_pages);
 
         __span_total = $('<span/>').text(_tbl_total);
-        tfoot_td.append($('<label/>').text(' Total: ').append(__span_total));
-        var a_refresh = $('<a/>').attr('class', 'table_refresh').text('Reload');
+        tfoot_td.append($('<label/>').text(' Total records: ').append(__span_total));
 
+
+        var a_gonext = $('<a/>').addClass('gonext');
+        tfoot_td.append(a_gonext);
+
+        var a_golast = $('<a/>').addClass('golast');
+        tfoot_td.append(a_golast);
 
         __select_page.bind('change', function () {
             this_object.reloadRows()
@@ -453,11 +459,32 @@ tmsTable = function (params) {
         a_refresh.bind('click', function () {
             this_object.reloadRows()
         })
-        tfoot_td.append(a_refresh);
+
+        a_gofirts.bind('click', function () {
+            this_object.goToPage(1);
+        })
+        a_golast.bind('click', function () {
+            this_object.goToPage(_tbl_page_num);
+        })
+        a_gonext.bind('click', function () {
+            this_object.goToPage(parseInt(_tbl_page) + 1);
+        })
+        a_goprevious.bind('click', function () {
+            this_object.goToPage(parseInt(_tbl_page) - 1);
+        })
 
 
         __table.append(__tfoot);
         container.append(__table);
+    }
+
+    this.goToPage = function (page) {
+
+        if (page < 1)page = 1;
+        if (page > _tbl_page_num)page = _tbl_page_num;
+
+        __select_page.val(page);
+        __select_page.change();
     }
 
     this.reloadTBODY = function (tbody) {
