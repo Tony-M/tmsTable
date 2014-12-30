@@ -85,6 +85,9 @@ tmsTable = function (params) {
      */
     var _tbl_url = '';
 
+    var _tbl_order_direction = 'asc';
+    var _tbl_order_by = '';
+
     var __table = null;
     var __thead = null;
     var __tbody = null;
@@ -122,6 +125,31 @@ tmsTable = function (params) {
             this.errorWrongCols();
         } else {
             this.setCols(params.cols);
+        }
+
+        if (params.order_by === undefined || params.order_by === null) {
+            _tbl_order_by = _tbl_cols[0].index;
+        } else {
+            for (i = 0; i < _tbl_cols.length; i++) {
+                if (params.order_by == _tbl_cols[i].index) {
+                    _tbl_order_by = params.order_by;
+                    break;
+                }
+            }
+            if (_tbl_order_by == '')
+                _tbl_order_by = _tbl_cols[0].index;
+
+
+        }
+
+        if (params.order_direction === undefined || params.order_direction === null) {
+            _tbl_order_direction = 'asc';
+        } else {
+            if (params.order_direction == '')params.order_direction = 'asc';
+            params.order_direction = params.order_direction.toLowerCase();
+            if (params.order_direction != 'asc' && params.order_direction != 'desc') this.errorWrongOrderDirection();
+
+            _tbl_order_direction = params.order_direction;
         }
 
         // checking for dataType
@@ -342,6 +370,7 @@ tmsTable = function (params) {
      * render result table view
      */
     this.render = function () {
+        var this_object = this;
         if (_tbl_container_id === null)this.errorWrongId();
 
         var container = $('#' + _tbl_container_id);
@@ -359,6 +388,31 @@ tmsTable = function (params) {
         var columns_number = _tbl_col_names.length;
         for (i = 0; i < columns_number; i++) {
             var h_td = $('<th/>').text(_tbl_col_names[i]);
+
+            var sort = $('<span/>');
+            var sort_asc = $('<span/>').addClass('orderasc').html('&uArr;');
+            var sort_desc = $('<span/>').addClass('orderdesc').html('&dArr;');
+            if(_tbl_order_by==_tbl_cols[i].index){
+                if(_tbl_order_direction=='asc')
+                     sort_desc.addClass('hidden');
+                else
+                     sort_asc.addClass('hidden');
+            }else{
+                sort_desc.addClass('hidden');
+                sort_asc.addClass('hidden');
+            }
+            sort.append(sort_asc).append(sort_desc);
+
+            h_td.attr('sidx', _tbl_cols[i].index).append(sort);
+            h_td.bind('click', function () {
+                this_object.orderBy($(this).attr('sidx'));
+                h_row.find('.orderasc, .orderdesc').each(function () {
+                    if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
+                });
+                console.log('.order' + _tbl_order_direction+':first');
+                $(this).find('.order' + _tbl_order_direction+':first').removeClass('hidden');
+            })
+
             h_row.append(h_td);
         }
         __thead.append(h_row);
@@ -370,7 +424,7 @@ tmsTable = function (params) {
         __table.append(__tbody)
 
 
-        var __tfoot = $('<tfoot/>');
+        __tfoot = $('<tfoot/>');
         var tfoot_tr = $('<tr/>');
         var tfoot_td = $('<td/>').attr('colspan', columns_number);
         tfoot_tr.append(tfoot_td);
@@ -392,7 +446,7 @@ tmsTable = function (params) {
         tfoot_td.append($('<label/>').text(' Total: ').append(__span_total));
         var a_refresh = $('<a/>').attr('class', 'table_refresh').text('Reload');
 
-        var this_object = this;
+
         __select_page.bind('change', function () {
             this_object.reloadRows()
         })
@@ -436,10 +490,17 @@ tmsTable = function (params) {
         if (_tbl_url == '')this.errorWrongUrl();
 
         thisobj = this;
+
+        post_data = {};
+        post_data.order_by = _tbl_order_by;
+        post_data.order_dir = _tbl_order_direction;
+        post_data.page = (__select_page === null ? 1 : __select_page.val());
+
         $.ajax({
             type: "POST",
             url: _tbl_url,
             dataType: 'json',
+            data: post_data,
             async: false,
             statusCode: {
                 404: function () {
@@ -463,6 +524,21 @@ tmsTable = function (params) {
             , complite: function () {
             }
         });
+    }
+
+    /**
+     * change ordering of rows
+     * @param order_by
+     * @param direction
+     */
+    this.orderBy = function (order_by) {
+        if (_tbl_order_by == order_by) {
+            _tbl_order_direction = (_tbl_order_direction == 'asc' ? 'desc' : 'asc');
+        } else {
+            _tbl_order_by = order_by;
+            _tbl_order_direction = 'asc';
+        }
+        this.reloadRows();
     }
 
 
@@ -523,6 +599,9 @@ tmsTable = function (params) {
     }
     this.errorUndefinedSrcIndex = function () {
         throw 'Error: Undefined index in Src data';
+    }
+    this.errorWrongOrderDirection = function () {
+        throw 'Error: Wrong sort order';
     }
 
     this.constructor(params);
