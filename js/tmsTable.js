@@ -352,6 +352,14 @@ tmsTable = function (params) {
 
             if (cols[i].index === undefined || cols[i].index === null || Array.isArray(cols[i].index) || cols[i].index == '')this.errorWrongCols('- index param');
             if (cols[i].name === undefined || cols[i].name === null || Array.isArray(cols[i].name) || cols[i].name == '')this.errorWrongCols('- name param');
+           var  width = null;
+            if (cols[i].width !== undefined && cols[i].width !== null) {
+                var r_num = /^[0-9]+$/;
+                if (r_num.test(cols[i].width))
+                    width = cols[i].width + 'px';
+            }
+            cols[i].width = width;
+
         }
         _tbl_cols = cols;
         return true;
@@ -381,6 +389,10 @@ tmsTable = function (params) {
         var columns_number = _tbl_col_names.length;
         for (i = 0; i < columns_number; i++) {
             var h_td = $('<th/>').text(_tbl_col_names[i]);
+
+            if (_tbl_cols[i].width !== null) {
+                h_td.css('width', _tbl_cols[i].width)
+            }
 
             var sort = $('<span/>');
             var sort_asc = $('<span/>').addClass('orderasc').html('&uArr;');
