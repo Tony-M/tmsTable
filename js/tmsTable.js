@@ -7,6 +7,7 @@
  */
 tmsTable = function (params) {
 
+    var VERSION = '14.12.30';
     /**
      * table DOM id
      * @type {string}
