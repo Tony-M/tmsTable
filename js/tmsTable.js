@@ -85,6 +85,14 @@ tmsTable = function (params) {
      */
     var _tbl_url = '';
 
+    var __table = null;
+    var __thead = null;
+    var __tbody = null;
+    var __tfoot = null;
+    var __select_page = null;
+    var __span_pages = null;
+    var __span_total = null;
+
 
     tmsTable.instances = [];
 
@@ -109,6 +117,13 @@ tmsTable = function (params) {
             this.setColNames(params.col_names);
         }
 
+        // checking data identity map
+        if (params.cols === undefined || params.cols === null || !Array.isArray(params.cols)) {
+            this.errorWrongCols();
+        } else {
+            this.setCols(params.cols);
+        }
+
         // checking for dataType
         if (params.dataType === undefined || params.dataType === null || Array.isArray(params.dataType)) {
             this.errorWrongDataType(1);
@@ -118,29 +133,25 @@ tmsTable = function (params) {
             }
             this.setDataType(params.dataType);
 
+            if (params.dataType == 'array') {
+                // checking data src
+                if (params.src === undefined || params.src === null || Array.isArray(params.src)) {
+                    this.errorWrongDataSrc(1);
+                } else {
+                    this.setSrc(params.src);
+                }
+            }
             if (params.dataType == 'jsonp') {
 
                 if (params.url === undefined || params.url == '') {
                     this.errorWrongUrl();
+                }
+                else {
                     this.setUrl(params.url);
-
+                    this.loadRows();
                 }
 
             }
-        }
-
-        // checking data identity map
-        if (params.cols === undefined || params.cols === null || !Array.isArray(params.cols)) {
-            this.errorWrongCols();
-        } else {
-            this.setCols(params.cols);
-        }
-
-        // checking data src
-        if (params.src === undefined || params.src === null || Array.isArray(params.src)) {
-            this.errorWrongDataSrc(1);
-        } else {
-            this.setSrc(params.src);
         }
 
 
@@ -283,6 +294,37 @@ tmsTable = function (params) {
         }
     }
 
+    this.reloadRows = function () {
+        if (_tbl_dataType == 'array') {
+            __tbody.empty();
+            this.reloadTBODY(__tbody);
+            return true;
+        }
+        if (_tbl_dataType == 'jsonp') {
+
+            this.loadRows();
+            __tbody.empty();
+            this.reloadTBODY(__tbody);
+
+            __span_pages.text(_tbl_page_num);
+            __span_total.text(_tbl_total);
+            this.refreshSelectPages();
+            return true;
+        }
+        this.errorWrongDataType(_tbl_dataType);
+        return false;
+    }
+
+    this.refreshSelectPages = function () {
+        __select_page.empty();
+        for (p = 1; p <= _tbl_page_num; p++) {
+            var opt = $('<option/>').val(p).text(p);
+            __select_page.append(opt);
+            if (p == _tbl_page)__select_page.val(p);
+        }
+    }
+
+
     this.setCols = function (cols) {
         if (cols === undefined || cols === null || !Array.isArray(cols))this.errorWrongCols('- undefined | null | wrong type');
         var n = cols.length;
@@ -304,14 +346,14 @@ tmsTable = function (params) {
 
         var container = $('#' + _tbl_container_id);
         var table_id = this.getTableId();
-        var table = $('<table/>').attr('id', table_id);
+        __table = $('<table/>').attr('id', table_id);
 
         if (_tbl_class != '') {
-            table.addClass(_tbl_class);
+            __table.addClass(_tbl_class);
         }
 
-        var thead = $('<thead/>');
-        table.append(thead);
+        __thead = $('<thead/>');
+        __table.append(__thead);
 
         var h_row = $('<tr/>');
         var columns_number = _tbl_col_names.length;
@@ -319,10 +361,52 @@ tmsTable = function (params) {
             var h_td = $('<th/>').text(_tbl_col_names[i]);
             h_row.append(h_td);
         }
-        thead.append(h_row);
+        __thead.append(h_row);
 
-        tbody = $('<tbody/>');
+        __tbody = $('<tbody/>');
 
+        this.reloadTBODY(__tbody);
+
+        __table.append(__tbody)
+
+
+        var __tfoot = $('<tfoot/>');
+        var tfoot_tr = $('<tr/>');
+        var tfoot_td = $('<td/>').attr('colspan', columns_number);
+        tfoot_tr.append(tfoot_td);
+        __tfoot.append(tfoot_tr);
+
+        __select_page = $('<select/>');
+        __select_page.addClass('page_select');
+
+        this.refreshSelectPages();
+
+
+        tfoot_td.append($('<label/>').text('Page:'));
+        tfoot_td.append(__select_page);
+        var label_pages = $('<label/>').html(' of: <span>' + _tbl_page_num + '</span>; ');
+        __span_pages = label_pages.find('span:first');
+        tfoot_td.append(label_pages);
+
+        __span_total = $('<span/>').text(_tbl_total);
+        tfoot_td.append($('<label/>').text(' Total: ').append(__span_total));
+        var a_refresh = $('<a/>').attr('class', 'table_refresh').text('Reload');
+
+        var this_object = this;
+        __select_page.bind('change', function () {
+            this_object.reloadRows()
+        })
+        a_refresh.bind('click', function () {
+            this_object.reloadRows()
+        })
+        tfoot_td.append(a_refresh);
+
+
+        __table.append(__tfoot);
+        container.append(__table);
+    }
+
+    this.reloadTBODY = function (tbody) {
         n = _tbl_data.length;
         for (i = 0; i < n; i++) {
             body_row = $('<tr/>');
@@ -336,35 +420,7 @@ tmsTable = function (params) {
 
             tbody.append(body_row);
         }
-
-        table.append(tbody)
-
-
-        var tfoot = $('<tfoot/>');
-        var tfoot_tr = $('<tr/>');
-        var tfoot_td = $('<td/>').attr('colspan',columns_number);
-        tfoot_tr.append(tfoot_td);
-        tfoot.append(tfoot_tr);
-
-        var page_selector = $('<select/>').addClass('page_select');
-        for(p=1;p<= _tbl_page_num;p++){
-            var opt=$('<option/>').val(p).text(p);
-            page_selector.append(opt);
-            if(p==_tbl_page)page_selector.val(p);
-        }
-
-
-        tfoot_td.append($('<label/>').text('Page:'));
-        tfoot_td.append(page_selector);
-        tfoot_td.append($('<label/>').text(' of: '+_tbl_page_num+'; '));
-
-        tfoot_td.append($('<label/>').text(' Total:'+_tbl_total));
-
-
-        table.append(tfoot);
-        container.append(table);
     }
-
 
     /**
      * return name of table in selectcet container
@@ -379,10 +435,12 @@ tmsTable = function (params) {
     this.loadRows = function () {
         if (_tbl_url == '')this.errorWrongUrl();
 
+        thisobj = this;
         $.ajax({
             type: "POST",
             url: _tbl_url,
             dataType: 'json',
+            async: false,
             statusCode: {
                 404: function () {
                     throw 'page 404';
@@ -393,7 +451,8 @@ tmsTable = function (params) {
             }
             , success: function (response) {
                 if (response.success != undefined && response.success) {
-                    console.log(response.rows);
+                    console.log(response);
+                    thisobj.setSrc(response);
                 }
                 else {
                     if (response.msg !== undefined) {
