@@ -85,8 +85,26 @@ tmsTable = function (params) {
      */
     var _tbl_url = '';
 
+    /**
+     * Order direction asc|desc
+     * @type {string}
+     * @private
+     */
     var _tbl_order_direction = 'asc';
+
+    /**
+     * Order by cell
+     * @type {string}
+     * @private
+     */
     var _tbl_order_by = '';
+
+    var _tbl_row_dblClick = function (rowId, rowData) {
+
+    }
+    var _tbl_row_click = function (rowId, rowData) {
+
+    }
 
     var __table = null;
     var __thead = null;
@@ -187,6 +205,12 @@ tmsTable = function (params) {
             this.setCssClassName(params.class);
         }
 
+        if (params.click !== undefined) {
+            _tbl_row_click = params.click;
+        }
+        if (params.dblClick !== undefined) {
+            _tbl_row_dblClick = params.dblClick;
+        }
 
         // add instance to collection of same type objects
         tmsTable.instances.push(this);
@@ -352,7 +376,7 @@ tmsTable = function (params) {
 
             if (cols[i].index === undefined || cols[i].index === null || Array.isArray(cols[i].index) || cols[i].index == '')this.errorWrongCols('- index param');
             if (cols[i].name === undefined || cols[i].name === null || Array.isArray(cols[i].name) || cols[i].name == '')this.errorWrongCols('- name param');
-           var  width = null;
+            var width = null;
             if (cols[i].width !== undefined && cols[i].width !== null) {
                 var r_num = /^[0-9]+$/;
                 if (r_num.test(cols[i].width))
@@ -502,7 +526,20 @@ tmsTable = function (params) {
     this.reloadTBODY = function (tbody) {
         n = _tbl_data.length;
         for (i = 0; i < n; i++) {
-            body_row = $('<tr/>');
+            var body_row = $('<tr/>');
+
+            if (_tbl_row_dblClick !== null) {
+                body_row.bind('dblclick', function () {
+                    var rowId = $(this).index();
+                    _tbl_row_dblClick(rowId, _tbl_data[rowId])
+                });
+            }
+            if (_tbl_row_click !== null) {
+                body_row.bind('click', function () {
+                    var rowId = $(this).index();
+                    _tbl_row_click(rowId, _tbl_data[rowId])
+                });
+            }
 
             for (var key in _tbl_data[i]) {
                 td = $('<td/>');
