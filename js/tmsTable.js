@@ -100,9 +100,21 @@ tmsTable = function (params) {
      */
     var _tbl_order_by = '';
 
+    /**
+     * default doubleclick event
+     * @param rowId
+     * @param rowData
+     * @private
+     */
     var _tbl_row_dblClick = function (rowId, rowData) {
 
     }
+    /**
+     * default click event
+     * @param rowId
+     * @param rowData
+     * @private
+     */
     var _tbl_row_click = function (rowId, rowData) {
 
     }
@@ -116,11 +128,18 @@ tmsTable = function (params) {
     var __span_total = null;
 
 
+    /**
+     * List of instanses
+     * @type {Array}
+     */
     tmsTable.instances = [];
 
-
+    /**
+     * Constructor
+     * @param params
+     * @returns {tmsTable}
+     */
     this.constructor = function (params) {
-        //console.log( "I'm mad! " );
         if (params === undefined) {
             throw ('params are not defined');
         }
@@ -233,6 +252,11 @@ tmsTable = function (params) {
         }
         return false;
     }
+    /**
+     * Set url to remote server data provider
+     * @param url
+     * @returns {boolean}
+     */
     this.setUrl = function (url) {
         if (url === undefined)this.errorWrongUrl();
 
@@ -296,6 +320,11 @@ tmsTable = function (params) {
         return true;
     }
 
+    /**
+     * Set data from remote response or local array
+     * @param data
+     * @returns {boolean}
+     */
     this.setSrc = function (data) {
         if (data === undefined || data === null || Array.isArray(data)) {
             this.errorWrongDataSrc();
@@ -347,6 +376,10 @@ tmsTable = function (params) {
         }
     }
 
+    /**
+     * Reload table rows - refreshing table
+     * @returns {boolean}
+     */
     this.reloadRows = function () {
         if (_tbl_dataType == 'array') {
             __tbody.empty();
@@ -369,6 +402,11 @@ tmsTable = function (params) {
     }
 
 
+    /**
+     * set data mapping scheme
+     * @param cols
+     * @returns {boolean}
+     */
     this.setCols = function (cols) {
         if (cols === undefined || cols === null || !Array.isArray(cols))this.errorWrongCols('- undefined | null | wrong type');
         var n = cols.length;
@@ -422,7 +460,6 @@ tmsTable = function (params) {
             if (_tbl_cols[i].width !== null) {
                 h_td.css('width', _tbl_cols[i].width)
             }
-console.log(_tbl_cols[i].sortable);
 
             if (_tbl_cols[i].sortable) {
                 var sort = $('<span/>');
@@ -445,7 +482,6 @@ console.log(_tbl_cols[i].sortable);
                     h_row.find('.orderasc, .orderdesc').each(function () {
                         if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
                     });
-                    console.log('.order' + _tbl_order_direction + ':first');
                     $(this).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
                 })
             }
@@ -522,6 +558,10 @@ console.log(_tbl_cols[i].sortable);
         container.append(__table);
     }
 
+    /**
+     * Load data for selected page and refresh table
+     * @param page
+     */
     this.goToPage = function (page) {
 
         if (page < 1)page = 1;
@@ -531,6 +571,10 @@ console.log(_tbl_cols[i].sortable);
         __select_page.change();
     }
 
+    /**
+     * reRender body part of table
+     * @param tbody
+     */
     this.reloadTBODY = function (tbody) {
         n = _tbl_data.length;
         for (i = 0; i < n; i++) {
@@ -569,7 +613,9 @@ console.log(_tbl_cols[i].sortable);
         return 'tbl_' + _tbl_container_id;
     }
 
-
+    /**
+     * ajax load data from remote data provider
+     */
     this.loadRows = function () {
         if (_tbl_url == '')this.errorWrongUrl();
 
@@ -596,7 +642,6 @@ console.log(_tbl_cols[i].sortable);
             }
             , success: function (response) {
                 if (response.success != undefined && response.success) {
-                    console.log(response);
                     thisobj.setSrc(response);
                 }
                 else {
@@ -681,9 +726,17 @@ console.log(_tbl_cols[i].sortable);
     this.errorWrongColsAndColsNamesNum = function () {
         throw 'Error: number of column names isn`t equal ti number of columns in identity map';
     }
+
+    /**
+     * throw error in src data does not exists current index from cols model
+     */
     this.errorUndefinedSrcIndex = function () {
         throw 'Error: Undefined index in Src data';
     }
+
+    /**
+     * throw error wrong order diraction (asc|desc)
+     */
     this.errorWrongOrderDirection = function () {
         throw 'Error: Wrong sort order';
     }
