@@ -119,6 +119,10 @@ tmsTable = function (params) {
 
     }
 
+    var _tbl_cell_decorator = function(rowId, rowData, rowObject){
+
+    }
+
     var __table = null;
     var __thead = null;
     var __tbody = null;
@@ -356,21 +360,21 @@ tmsTable = function (params) {
 
             if (cols_name_num != cols_num)this.errorWrongColsAndColsNamesNum()
 
-            result = [];
+            //result = [];
 
 
             for (i = 0; i < rows_num; i++) {
-                result_row = {};
+                //result_row = {};
                 for (j = 0; j < cols_num; j++) {
                     var key = _tbl_cols[j].name;
                     if (rows[i][key] === undefined)this.errorUndefinedSrcIndex();
-                    result_row[key] = rows[i][key];
+                    //result_row[key] = rows[i][key];
                 }
-                result.push(result_row);
+                //result.push(result_row);
             }
             _tbl_data = null;
             _tbl_data = [];
-            _tbl_data = result;
+            _tbl_data = rows;
             return true;
 
         }
@@ -423,6 +427,10 @@ tmsTable = function (params) {
             }
             if (cols[i].sortable === undefined || typeof(cols[i].sortable) != "boolean") {
                 cols[i].sortable = 11;
+            }
+
+            if(cols[i].decorator === undefined){
+                cols[i].decorator = _tbl_cell_decorator();
             }
 
             cols[i].width = width;
@@ -576,6 +584,7 @@ tmsTable = function (params) {
      * @param tbody
      */
     this.reloadTBODY = function (tbody) {
+        console.log(_tbl_cols);
         n = _tbl_data.length;
         for (i = 0; i < n; i++) {
             var body_row = $('<tr/>');
@@ -593,12 +602,28 @@ tmsTable = function (params) {
                 });
             }
 
-            for (var key in _tbl_data[i]) {
-                td = $('<td/>');
-                td.html(_tbl_data[i][key]);
+            var col_num = _tbl_cols.length;
+            var row_num = _tbl_data.length;
 
-                body_row.append(td);
-            }
+                for(ci=0;ci<col_num;ci++){
+                    td = $('<td/>');
+                    if(_tbl_data[i][_tbl_cols[ci].index]!==undefined){
+                        //td.html(_tbl_data[i][_tbl_cols[ci].index]);
+
+                        td.html(_tbl_cols[ci].decorator(i, _tbl_data[i],body_row ))
+
+                        body_row.append(td);
+                    }
+                }
+            //for (var key in _tbl_data[i]) {
+            //    td = $('<td/>');
+            //    td.html(_tbl_data[i][key]);
+            //
+            //    //_tbl_cols[ridx].decorator()
+            //
+            //    body_row.append(td);
+            //    ridx++;
+            //}
 
             tbody.append(body_row);
         }
