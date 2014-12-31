@@ -383,6 +383,10 @@ tmsTable = function (params) {
                 if (r_num.test(cols[i].width))
                     width = cols[i].width + 'px';
             }
+            if (cols[i].sortable === undefined || typeof(cols[i].sortable) != "boolean") {
+                cols[i].sortable = 11;
+            }
+
             cols[i].width = width;
 
         }
@@ -418,30 +422,33 @@ tmsTable = function (params) {
             if (_tbl_cols[i].width !== null) {
                 h_td.css('width', _tbl_cols[i].width)
             }
+console.log(_tbl_cols[i].sortable);
 
-            var sort = $('<span/>');
-            var sort_asc = $('<span/>').addClass('orderasc').html('&uArr;');
-            var sort_desc = $('<span/>').addClass('orderdesc').html('&dArr;');
-            if (_tbl_order_by == _tbl_cols[i].index) {
-                if (_tbl_order_direction == 'asc')
+            if (_tbl_cols[i].sortable) {
+                var sort = $('<span/>');
+                var sort_asc = $('<span/>').addClass('orderasc').html('&uArr;');
+                var sort_desc = $('<span/>').addClass('orderdesc').html('&dArr;');
+                if (_tbl_order_by == _tbl_cols[i].index) {
+                    if (_tbl_order_direction == 'asc')
+                        sort_desc.addClass('hidden');
+                    else
+                        sort_asc.addClass('hidden');
+                } else {
                     sort_desc.addClass('hidden');
-                else
                     sort_asc.addClass('hidden');
-            } else {
-                sort_desc.addClass('hidden');
-                sort_asc.addClass('hidden');
-            }
-            sort.append(sort_asc).append(sort_desc);
+                }
+                sort.append(sort_asc).append(sort_desc);
 
-            h_td.attr('sidx', _tbl_cols[i].index).append(sort);
-            h_td.bind('click', function () {
-                this_object.orderBy($(this).attr('sidx'));
-                h_row.find('.orderasc, .orderdesc').each(function () {
-                    if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
-                });
-                console.log('.order' + _tbl_order_direction + ':first');
-                $(this).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
-            })
+                h_td.attr('sidx', _tbl_cols[i].index).append(sort);
+                h_td.bind('click', function () {
+                    this_object.orderBy($(this).attr('sidx'));
+                    h_row.find('.orderasc, .orderdesc').each(function () {
+                        if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
+                    });
+                    console.log('.order' + _tbl_order_direction + ':first');
+                    $(this).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
+                })
+            }
 
             h_row.append(h_td);
         }
