@@ -119,8 +119,22 @@ tmsTable = function (params) {
 
     }
 
+    /**
+     *
+     * @param rowId - row index
+     * @param rowData - row object data
+     * @param rowObject row object
+     * @param cellValue value for current cell
+     * @returns {*}
+     * @private
+     */
     var _tbl_cell_decorator = function(rowId, rowData, rowObject, cellValue){
         return cellValue;
+    }
+
+    var _tbl_after_row_insert = function (rowId, rowData, rowObject){
+
+        return ;
     }
 
     var __table = null;
@@ -234,6 +248,9 @@ tmsTable = function (params) {
         }
         if (params.dblClick !== undefined) {
             _tbl_row_dblClick = params.dblClick;
+        }
+        if (params.afterInsertRow !== undefined) {
+            _tbl_after_row_insert = params.afterInsertRow;
         }
 
         // add instance to collection of same type objects
@@ -625,6 +642,8 @@ tmsTable = function (params) {
             //}
 
             tbody.append(body_row);
+
+            _tbl_after_row_insert(i, _tbl_data[i], body_row );
         }
     }
 
