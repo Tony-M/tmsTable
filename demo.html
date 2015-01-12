@@ -56,7 +56,7 @@
         , order_by: 'title'
         , cols: [
             {index: 'id', name: 'id', width: 100}
-            , {index: 'title', name: 'title'}
+            , {index: 'title', name: 'title', decorator: function(rowId, rowData, rowObject, cellvalue){ return '<b>'+cellvalue+'<b>';}}
             , {index: 'date', name: 'date', width: 100, sortable: false}
         ]
 //        , dblClick: function (rowId, rowData) {

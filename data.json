@@ -6,75 +6,40 @@
   "rows": [
     {
       "id": "0",
-      "title": "a",
+      "title": "Астрахань",
       "date": "01.01.2015",
       "text": "lalala"
     },
     {
       "id": "1",
-      "title": "b",
+      "title": "Будапешт",
       "date": "02.01.2015",
       "text": "lalala"
     },
     {
       "id": "2",
-      "title": "c",
+      "title": "Вологда",
       "date": "03.01.2015",
       "text": "lalala"
     },
     {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
+      "id": "3",
+      "title": "Горький",
+      "date": "12.01.2015",
       "text": "lalala"
     },
     {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
+      "id": "4",
+      "title": "Донбас",
+      "date": "17.01.2015",
       "text": "lalala"
     },
     {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
-      "text": "lalala"
-    },
-    {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
-      "text": "lalala"
-    },
-    {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
-      "text": "lalala"
-    },
-    {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
-      "text": "lalala"
-    },
-    {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
-      "text": "lalala"
-    },
-    {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
-      "text": "lalala"
-    },
-    {
-      "id": "2",
-      "title": "c",
-      "date": "03.01.2015",
+      "id": "5",
+      "title": "Екатеринбург",
+      "date": "23.01.2015",
       "text": "lalala"
     }
+
   ]
 }

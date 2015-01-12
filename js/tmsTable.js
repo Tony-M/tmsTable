@@ -119,8 +119,8 @@ tmsTable = function (params) {
 
     }
 
-    var _tbl_cell_decorator = function(rowId, rowData, rowObject){
-
+    var _tbl_cell_decorator = function(rowId, rowData, rowObject, cellValue){
+        return cellValue;
     }
 
     var __table = null;
@@ -430,7 +430,7 @@ tmsTable = function (params) {
             }
 
             if(cols[i].decorator === undefined){
-                cols[i].decorator = _tbl_cell_decorator();
+                cols[i].decorator = _tbl_cell_decorator
             }
 
             cols[i].width = width;
@@ -584,7 +584,6 @@ tmsTable = function (params) {
      * @param tbody
      */
     this.reloadTBODY = function (tbody) {
-        console.log(_tbl_cols);
         n = _tbl_data.length;
         for (i = 0; i < n; i++) {
             var body_row = $('<tr/>');
@@ -610,7 +609,7 @@ tmsTable = function (params) {
                     if(_tbl_data[i][_tbl_cols[ci].index]!==undefined){
                         //td.html(_tbl_data[i][_tbl_cols[ci].index]);
 
-                        td.html(_tbl_cols[ci].decorator(i, _tbl_data[i],body_row ))
+                        td.html(_tbl_cols[ci].decorator(i, _tbl_data[i], body_row ,_tbl_data[i][_tbl_cols[ci].index] ))
 
                         body_row.append(td);
                     }
