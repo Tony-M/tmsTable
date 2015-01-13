@@ -101,6 +101,19 @@ tmsTable = function (params) {
     var _tbl_order_by = '';
 
     /**
+     * are rows selectable or not
+     * @type {boolean}
+     * @private
+     */
+    var _tbl_selectable = false;
+
+    /**
+     * array of selected indexes. -1 = all
+     * @type {Array}
+     * @private
+     */
+    var _tbl_selected_rows = [];
+    /**
      * default doubleclick event
      * @param rowId
      * @param rowData
@@ -128,13 +141,13 @@ tmsTable = function (params) {
      * @returns {*}
      * @private
      */
-    var _tbl_cell_decorator = function(rowId, rowData, rowObject, cellValue){
+    var _tbl_cell_decorator = function (rowId, rowData, rowObject, cellValue) {
         return cellValue;
     }
 
-    var _tbl_after_row_insert = function (rowId, rowData, rowObject){
+    var _tbl_after_row_insert = function (rowId, rowData, rowObject) {
 
-        return ;
+        return;
     }
 
     var __table = null;
@@ -167,6 +180,14 @@ tmsTable = function (params) {
             this.errorWrongId();
         } else {
             this.setId(params.id);
+        }
+
+        if (params.selectable !== undefined && params.selectable) {
+            _tbl_selectable = true;
+        }
+        else {
+            _tbl_selectable = false;
+
         }
 
         // checking of column names
@@ -446,7 +467,7 @@ tmsTable = function (params) {
                 cols[i].sortable = 11;
             }
 
-            if(cols[i].decorator === undefined){
+            if (cols[i].decorator === undefined) {
                 cols[i].decorator = _tbl_cell_decorator
             }
 
@@ -478,6 +499,16 @@ tmsTable = function (params) {
         __table.append(__thead);
 
         var h_row = $('<tr/>');
+
+        if (_tbl_selectable) {
+            var td_select = $('<th/>').css('width', '20px');
+            var chbx = $('<input/>').attr('type', 'checkbox').change(function () {
+                this_object.setSelected(-1)
+            });
+            td_select.append(chbx);
+            h_row.append(td_select);
+        }
+
         var columns_number = _tbl_col_names.length;
         for (i = 0; i < columns_number; i++) {
             var h_td = $('<th/>').text(_tbl_col_names[i]);
@@ -524,7 +555,7 @@ tmsTable = function (params) {
 
         __tfoot = $('<tfoot/>');
         var tfoot_tr = $('<tr/>');
-        var tfoot_td = $('<td/>').attr('colspan', columns_number);
+        var tfoot_td = $('<td/>').attr('colspan',(_tbl_selectable?columns_number+1:columns_number));
         tfoot_tr.append(tfoot_td);
         __tfoot.append(tfoot_tr);
 
@@ -597,12 +628,76 @@ tmsTable = function (params) {
     }
 
     /**
+     * select row or all rows by index
+     * @param row_index int
+     * @param tbody
+     * @returns {boolean}
+     */
+    this.setSelected = function (row_index, tbody) {
+        var n = _tbl_selected_rows.length;
+        for (var i = 0; i < n; i++) {
+            if (_tbl_selected_rows[i] == row_index) {
+                _tbl_selected_rows.splice(i, 1);
+                if (row_index == -1) {
+                    __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+                }
+                return true;
+            }
+        }
+        if (row_index == -1) {
+            _tbl_selected_rows = [];
+            _tbl_selected_rows.push(row_index);
+
+            __tbody.find('tr').find('td:first').find('input').prop('checked', true);
+        } else {
+
+            if (_tbl_selected_rows[0] == -1) {
+                var n = __tbody.find('tr').length;
+                _tbl_selected_rows = Array.apply(null, {length: n}).map(Number.call, Number);
+                _tbl_selected_rows.splice(row_index, 1);
+                __thead.find('tr').find('th:first').find('input').prop('checked', false);
+
+            } else {
+                _tbl_selected_rows.push(row_index);
+            }
+        }
+        return true;
+
+    }
+
+    /**
+     * return array of selected indexes. If all rows (of the table) must be selected, then returns [-1]
+     * @returns {Array}
+     */
+    this.getSelectedIndexes = function(){
+        return _tbl_selected_rows;
+    }
+
+    /**
+     * return rowdata by row index
+     * @param index int
+     * @returns {*}
+     */
+    this.getRowData=function(index){
+        var re = /^[0-9]+$/;
+        if(index==-1){
+            return _tbl_data;
+        }
+
+        if(re.test(index)){
+            if(_tbl_data[index]!==undefined)return _tbl_data[index];
+        }
+        return false;
+    }
+
+    /**
      * reRender body part of table
      * @param tbody
      */
     this.reloadTBODY = function (tbody) {
+        var this_object = this;
         n = _tbl_data.length;
-        for (i = 0; i < n; i++) {
+        for (var i = 0; i < n; i++) {
             var body_row = $('<tr/>');
 
             if (_tbl_row_dblClick !== null) {
@@ -621,16 +716,26 @@ tmsTable = function (params) {
             var col_num = _tbl_cols.length;
             var row_num = _tbl_data.length;
 
-                for(ci=0;ci<col_num;ci++){
-                    td = $('<td/>');
-                    if(_tbl_data[i][_tbl_cols[ci].index]!==undefined){
-                        //td.html(_tbl_data[i][_tbl_cols[ci].index]);
+            if (_tbl_selectable) {
+                var td_select = $('<td/>');
 
-                        td.html(_tbl_cols[ci].decorator(i, _tbl_data[i], body_row ,_tbl_data[i][_tbl_cols[ci].index] ))
+                var chbx = $('<input/>').attr('type', 'checkbox').change(function () {
+                    this_object.setSelected($(this).closest('tr').index())
+                });
+                td_select.append(chbx);
+                body_row.append(td_select);
+            }
 
-                        body_row.append(td);
-                    }
+            for (ci = 0; ci < col_num; ci++) {
+                td = $('<td/>');
+                if (_tbl_data[i][_tbl_cols[ci].index] !== undefined) {
+                    //td.html(_tbl_data[i][_tbl_cols[ci].index]);
+
+                    td.html(_tbl_cols[ci].decorator(i, _tbl_data[i], body_row, _tbl_data[i][_tbl_cols[ci].index]))
+
+                    body_row.append(td);
                 }
+            }
             //for (var key in _tbl_data[i]) {
             //    td = $('<td/>');
             //    td.html(_tbl_data[i][key]);
@@ -643,7 +748,7 @@ tmsTable = function (params) {
 
             tbody.append(body_row);
 
-            _tbl_after_row_insert(i, _tbl_data[i], body_row );
+            _tbl_after_row_insert(i, _tbl_data[i], body_row);
         }
     }
 
