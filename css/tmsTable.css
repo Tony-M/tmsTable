@@ -1,4 +1,4 @@
-
+.tmsTable_container {margin-bottom: 20px;}
 .tmsTable table.tmsTable thead tr th { cursor: pointer;}
 .tmsTable a {cursor: pointer}
 .tmsTable .orderasc,.tmsTable .orderdesc{ color:#aaa; margin-right: 4px; margin-right: 4px; display: inline-block; cursor: pointer;}

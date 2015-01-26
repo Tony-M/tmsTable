@@ -590,6 +590,8 @@ tmsTable = function (params) {
         tfoot_td.append(a_golast);
 
         __select_page.bind('change', function () {
+            this_object.unselectAllRows();
+
             this_object.reloadRows()
         })
         a_refresh.bind('click', function () {
@@ -619,6 +621,7 @@ tmsTable = function (params) {
      * @param page
      */
     this.goToPage = function (page) {
+        this.unselectAllRows();
 
         if (page < 1)page = 1;
         if (page > _tbl_page_num)page = _tbl_page_num;
@@ -815,9 +818,17 @@ tmsTable = function (params) {
             _tbl_order_by = order_by;
             _tbl_order_direction = 'asc';
         }
+        this.unselectAllRows();
         this.reloadRows();
     }
 
+
+    this.unselectAllRows = function(){
+        _tbl_selected_rows = [];
+        __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+        __thead.find('tr').find('th:first').find('input').prop('checked', false);
+
+    }
 
     /**
      * throw error ID is not defined
