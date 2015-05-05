@@ -170,13 +170,14 @@ tmsTable = function (params) {
     var __thead = null;
     var __tbody = null;
     var __tfoot = null;
+    var __ajax_indicator = null;
     var __select_page = null;
     var __span_pages = null;
     var __span_total = null;
 
     /**
      * array of lables
-     * @type {{reload: string, first_page: string, last_page: string, previous_page: string, next_page: string, current_page: string, rows: string, total_rows: string, asc: string, desc: string}}
+     * @type {{reload: string, first_page: string, last_page: string, previous_page: string, next_page: string, current_page: string, rows: string, total_rows: string, asc: string, desc: string, of: string, ajax_indicator: string}}
      * @private
      */
     var _tbl_LABLES = {
@@ -191,6 +192,7 @@ tmsTable = function (params) {
         ,asc: 'Sort by ASC'
         ,desc: 'Sort by DESC'
         ,of:'of'
+        ,ajax_indicator:'Waiting for server response'
     }
 
     /**
@@ -587,6 +589,9 @@ tmsTable = function (params) {
         var this_object = this;
         if (_tbl_container_id === null)this.errorWrongId();
 
+        __ajax_indicator = $('<div/>').addClass('tmsTable_ajax_indicator').addClass('hidden').append($('<div/>').text(_tbl_LABLES.ajax_indicator));
+        $('body').append(__ajax_indicator);
+
         var container = $('#' + _tbl_container_id);
 
         container.addClass('tmsTable tmsTable_container')
@@ -899,6 +904,7 @@ tmsTable = function (params) {
         post_data.page = (__select_page === null ? 1 : __select_page.val());
         post_data.row_num = _tbl_rowNum;
 
+        var ajax_indicator = __ajax_indicator;
 
         $.ajax({
             type: "POST",
@@ -914,6 +920,23 @@ tmsTable = function (params) {
                     throw  'page 500';
                 }
             }
+            , beforeSend : function(){
+                var t = thisobj.getTableId();
+                var t = $('#'+ t).find('tbody:first');
+                var height = t.height();
+                var width = t.width();
+                var position = t.position();
+
+                if(width!==null && height!==null && position!==undefined){
+
+                    ajax_indicator.css('top', position.top).css('left', position.left).height(height).width(width);
+                    ajax_indicator.find('div:first').css('margin-top', height/2);
+                    if(ajax_indicator.hasClass('hidden')){
+                        ajax_indicator.removeClass('hidden');
+                    }
+                }
+
+            }
             , success: function (response) {
                 if (response.success != undefined && response.success) {
                     thisobj.setSrc(response);
@@ -924,7 +947,8 @@ tmsTable = function (params) {
                     }
                 }
             }
-            , complite: function () {
+            , complete: function () {
+                if(!$(ajax_indicator).hasClass('hidden'))$(ajax_indicator).addClass('hidden');
             }
         });
     }
