@@ -174,6 +174,24 @@ tmsTable = function (params) {
     var __span_pages = null;
     var __span_total = null;
 
+    /**
+     * array of lables
+     * @type {{reload: string, first_page: string, last_page: string, previous_page: string, next_page: string, current_page: string, rows: string, total_rows: string, asc: string, desc: string}}
+     * @private
+     */
+    var _tbl_LABLES = {
+        reload: '^^^Reload'
+        ,first_page: '^^^First page'
+        ,last_page: '^^^Last page'
+        ,previous_page: '^^^Previous page'
+        ,next_page: '^^^Next page'
+        ,current_page: '^^^Current page'
+        ,rows: '^^^Rows'
+        ,total_rows: '^^^Total records'
+        ,asc: '^^^Sort by ASC'
+        ,desc: '^^^Sort by DESC'
+        ,of:'of'
+    }
 
     /**
      * List of instanses
@@ -194,6 +212,12 @@ tmsTable = function (params) {
         return found;
     }
 
+    this.merge_options = function(obj1,obj2){
+        var obj3 = {};
+        for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+        for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+        return obj3;
+    }
 
     this.isInt = function (n) {
         return Number(n) === n && n % 1 === 0;
@@ -210,6 +234,11 @@ tmsTable = function (params) {
      * @returns {tmsTable}
      */
     this.constructor = function (params) {
+
+        if(tmsTable.LOCALE!==undefined && typeof (tmsTable.LOCALE)==='object'){
+            _tbl_LABLES = this.merge_options(_tbl_LABLES, tmsTable.LOCALE);
+        }
+
         if (params === undefined) {
             throw ('params are not defined');
         }
@@ -592,8 +621,8 @@ tmsTable = function (params) {
 
             if (_tbl_cols[i].sortable) {
                 var sort = $('<span/>');
-                var sort_asc = $('<span/>').addClass('orderasc').html('&uArr;');
-                var sort_desc = $('<span/>').addClass('orderdesc').html('&dArr;');
+                var sort_asc = $('<span/>').addClass('orderasc').html('&#9651;').attr('title', _tbl_LABLES.asc);
+                var sort_desc = $('<span/>').addClass('orderdesc').html('&#9661;').attr('title', _tbl_LABLES.desc);
                 if (_tbl_order_by == _tbl_cols[i].index) {
                     if (_tbl_order_direction == 'asc')
                         sort_desc.addClass('hidden');
@@ -636,30 +665,30 @@ tmsTable = function (params) {
         __select_page.addClass('page_select');
 
 
-        var a_refresh = $('<a/>').attr('class', 'table_refresh').text('Reload');
+        var a_refresh = $('<a/>').attr('class', 'table_refresh').text(_tbl_LABLES.reload);
         tfoot_td.append(a_refresh);
 
-        var a_gofirts = $('<a/>').addClass('gofirts');
+        var a_gofirts = $('<a/>').addClass('gofirts').attr('title', _tbl_LABLES.first_page);
         tfoot_td.append(a_gofirts);
 
-        var a_goprevious = $('<a/>').addClass('goprevious');
+        var a_goprevious = $('<a/>').addClass('goprevious').attr('title', _tbl_LABLES.previous_page);
         tfoot_td.append(a_goprevious);
 
 
-        tfoot_td.append($('<label/>').text('Page:'));
+        tfoot_td.append($('<label/>').text(_tbl_LABLES.current_page+':'));
         tfoot_td.append(__select_page);
-        var label_pages = $('<label/>').html(' of: <span>' + _tbl_page_num + '</span>; ');
+        var label_pages = $('<label/>').html(' '+_tbl_LABLES.of+': <span>' + _tbl_page_num + '</span>; ');
         __span_pages = label_pages.find('span:first');
         tfoot_td.append(label_pages);
 
         __span_total = $('<span/>').text(_tbl_total);
-        tfoot_td.append($('<label/>').text(' Total records: ').append(__span_total));
+        tfoot_td.append($('<label/>').text(' '+_tbl_LABLES.total_rows+': ').append(__span_total));
 
 
-        var a_gonext = $('<a/>').addClass('gonext');
+        var a_gonext = $('<a/>').addClass('gonext').attr('title', _tbl_LABLES.next_page);
         tfoot_td.append(a_gonext);
 
-        var a_golast = $('<a/>').addClass('golast');
+        var a_golast = $('<a/>').addClass('golast').attr('title', _tbl_LABLES.last_page);
         tfoot_td.append(a_golast);
 
         if(_tbl_rowNums.length>0){
@@ -668,7 +697,7 @@ tmsTable = function (params) {
                 var ri_opt = $('<option/>').attr('value',_tbl_rowNums[ri]).text(_tbl_rowNums[ri]);
                 select_rowNums.append(ri_opt);
             }
-            tfoot_td.append($('<label/>').text(' Rows: '));
+            tfoot_td.append($('<label/>').text(' '+_tbl_LABLES.rows+': '));
             tfoot_td.append(select_rowNums);
 
 
