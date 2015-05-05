@@ -84,6 +84,8 @@ tmsTable может работать с 2 типами данных
 	//            console.log(rowId, rowData);
 	//        }
 			, selectable: true
+			, rowNum: 20 // default row nums
+           , rowNums: [10, 20, 50]  // avaliable row nums for selector in table footer
 	//        ,afterInsertRow: function(rowId, rowData, rowObject ){rowObject.css('color','orange') }
 	    };
 	    
@@ -105,6 +107,8 @@ tmsTable может работать с 2 типами данных
 	dblClick: function (rowId, rowData) - определяет событие на событие doubleclick по строке таблицы 
 	click: function (rowId, rowData) - определяет событие на событие click по строке таблицы 
 	afterInsertRow: function(rowId, rowData, rowObject ) - постобработчик срабатывает после добавления строки в таблицу
+	rowNum - количество строк для запроса с сервера. Default: 10
+	rowNums - список из возможных значений rowNum для селектора в подвале страницы. Необязательный параметр.
 	
 
 ####Опции cols####

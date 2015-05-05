@@ -113,6 +113,22 @@ tmsTable = function (params) {
      * @private
      */
     var _tbl_selected_rows = [];
+
+    /**
+     * selected rows per page. Default 10
+     * @type integer
+     * @private
+     */
+    var _tbl_rowNum = 10;
+
+    /**
+     * avaliable rowNum values
+     * @type array
+     * @private
+     */
+    var _tbl_rowNums = [];
+
+
     /**
      * default doubleclick event
      * @param rowId
@@ -165,6 +181,29 @@ tmsTable = function (params) {
      */
     tmsTable.instances = [];
 
+    this.in_array = function (needle, haystack, strict) {	// Checks if a value exists in an array
+        var found = false, key, strict = !!strict;
+
+        for (key in haystack) {
+            if ((strict && haystack[key] === needle) || (!strict && haystack[key] == needle)) {
+                found = true;
+                break;
+            }
+        }
+
+        return found;
+    }
+
+
+    this.isInt = function (n) {
+        return Number(n) === n && n % 1 === 0;
+    }
+
+    this.isFloat = function (n) {
+        return n === Number(n) && n % 1 !== 0
+    }
+
+
     /**
      * Constructor
      * @param params
@@ -189,6 +228,39 @@ tmsTable = function (params) {
             _tbl_selectable = false;
 
         }
+
+        if (params.rowNums !== undefined) {
+            if (!Array.isArray(params.rowNums)) {
+                this.errorWrongRowNumsType();
+            }
+
+            var n = params.rowNums.length;
+            for (var i = 0; i < n; i++) {
+                if (!this.in_array(params.rowNums[i]), _tbl_rowNums) {
+                    if (this.isInt(params.rowNums[i]) && params.rowNums[i]>=0) {
+                        _tbl_rowNums.push(params.rowNums[i]);
+                    }
+                }
+            }
+        }
+
+
+        if (params.rowNum !== undefined) {
+            if(!this.isInt(params.rowNum) || params.rowNum <0){
+                this.errorWrongRowNumType();
+            }
+
+            if(_tbl_rowNums.length>0 && !this.in_array(params.rowNum,_tbl_rowNums)){
+                this.errorWrongRowNum();
+            }
+
+            _tbl_rowNum = params.rowNum;
+        }else{
+            if(_tbl_rowNums.length>0){
+                _tbl_rowNum = _tbl_rowNums[0];
+            }
+        }
+
 
         // checking of column names
         if (params.col_names === undefined || params.col_names === null || !Array.isArray(params.col_names)) {
@@ -273,6 +345,7 @@ tmsTable = function (params) {
         if (params.afterInsertRow !== undefined) {
             _tbl_after_row_insert = params.afterInsertRow;
         }
+
 
         // add instance to collection of same type objects
         tmsTable.instances.push(this);
@@ -555,7 +628,7 @@ tmsTable = function (params) {
 
         __tfoot = $('<tfoot/>');
         var tfoot_tr = $('<tr/>');
-        var tfoot_td = $('<td/>').attr('colspan',(_tbl_selectable?columns_number+1:columns_number));
+        var tfoot_td = $('<td/>').attr('colspan', (_tbl_selectable ? columns_number + 1 : columns_number));
         tfoot_tr.append(tfoot_td);
         __tfoot.append(tfoot_tr);
 
@@ -588,6 +661,25 @@ tmsTable = function (params) {
 
         var a_golast = $('<a/>').addClass('golast');
         tfoot_td.append(a_golast);
+
+        if(_tbl_rowNums.length>0){
+            select_rowNums = $('<select/>').addClass('row_on_page');
+            for(var ri=0;ri<_tbl_rowNums.length;ri++){
+                var ri_opt = $('<option/>').attr('value',_tbl_rowNums[ri]).text(_tbl_rowNums[ri]);
+                select_rowNums.append(ri_opt);
+            }
+            tfoot_td.append($('<label/>').text(' Rows: '));
+            tfoot_td.append(select_rowNums);
+
+
+            select_rowNums.val(_tbl_rowNum);
+            select_rowNums.bind('change', function () {
+                this_object.unselectAllRows();
+                _tbl_rowNum = select_rowNums.val();
+
+                this_object.reloadRows()
+            })
+        }
 
         __select_page.bind('change', function () {
             this_object.unselectAllRows();
@@ -672,7 +764,7 @@ tmsTable = function (params) {
      * return array of selected indexes. If all rows (of the table) must be selected, then returns [-1]
      * @returns {Array}
      */
-    this.getSelectedIndexes = function(){
+    this.getSelectedIndexes = function () {
         return _tbl_selected_rows;
     }
 
@@ -681,14 +773,14 @@ tmsTable = function (params) {
      * @param index int
      * @returns {*}
      */
-    this.getRowData=function(index){
+    this.getRowData = function (index) {
         var re = /^[0-9]+$/;
-        if(index==-1){
+        if (index == -1) {
             return _tbl_data;
         }
 
-        if(re.test(index)){
-            if(_tbl_data[index]!==undefined)return _tbl_data[index];
+        if (re.test(index)) {
+            if (_tbl_data[index] !== undefined)return _tbl_data[index];
         }
         return false;
     }
@@ -776,6 +868,8 @@ tmsTable = function (params) {
         post_data.order_by = _tbl_order_by;
         post_data.order_dir = _tbl_order_direction;
         post_data.page = (__select_page === null ? 1 : __select_page.val());
+        post_data.row_num = _tbl_rowNum;
+
 
         $.ajax({
             type: "POST",
@@ -823,7 +917,7 @@ tmsTable = function (params) {
     }
 
 
-    this.unselectAllRows = function(){
+    this.unselectAllRows = function () {
         _tbl_selected_rows = [];
         __tbody.find('tr').find('td:first').find('input').prop('checked', false);
         __thead.find('tr').find('th:first').find('input').prop('checked', false);
@@ -898,6 +992,17 @@ tmsTable = function (params) {
      */
     this.errorWrongOrderDirection = function () {
         throw 'Error: Wrong sort order';
+    }
+
+    this.errorWrongRowNumsType = function () {
+        throw 'Error: wrong type of rowNums. Must be Array.';
+    }
+
+ this.errorWrongRowNumType = function () {
+        throw 'Error: wrong type of rowNum. Must be Int.';
+    }
+this.errorWrongRowNum = function () {
+        throw 'Error: wrong rowNum. Must be one of defined rowNums values.';
     }
 
     this.constructor(params);
