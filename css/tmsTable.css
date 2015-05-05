@@ -3,6 +3,7 @@
 .tmsTable a {cursor: pointer}
 .tmsTable .orderasc,.tmsTable .orderdesc{ color:#aaa; margin-right: 4px; margin-right: 4px; display: inline-block; cursor: pointer;}
 .tmsTable input.page_select {width: 60px;  line-height: normal}
+.tmsTable table.tmsTable thead * {-webkit-touch-callout: none;  -webkit-user-select: none;  -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}
 .tmsTable table.tmsTable tfoot tr td  label{font-size: 12px!important; font-weight: normal!important; margin-left: 4px; margin-right: 4px; display: inline-block;}
 .tmsTable table.tmsTable tfoot tr td a.gofirts{display:inline-block;height: 16px; width: 16px; background: url(../images/first.png); background-size: cover; margin-right: 4px; margin-left:25px;}
 .tmsTable table.tmsTable tfoot tr td a.golast{display:inline-block;height: 16px; width: 16px; background: url(../images/last.png); background-size: cover; margin-right: 4px; margin-left: 4px;}
