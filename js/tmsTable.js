@@ -180,16 +180,16 @@ tmsTable = function (params) {
      * @private
      */
     var _tbl_LABLES = {
-        reload: '^^^Reload'
-        ,first_page: '^^^First page'
-        ,last_page: '^^^Last page'
-        ,previous_page: '^^^Previous page'
-        ,next_page: '^^^Next page'
-        ,current_page: '^^^Current page'
-        ,rows: '^^^Rows'
-        ,total_rows: '^^^Total records'
-        ,asc: '^^^Sort by ASC'
-        ,desc: '^^^Sort by DESC'
+        reload: 'Reload'
+        ,first_page: 'First page'
+        ,last_page: 'Last page'
+        ,previous_page: 'Previous page'
+        ,next_page: 'Next page'
+        ,current_page: 'Current page'
+        ,rows: 'Rows'
+        ,total_rows: 'Total records'
+        ,asc: 'Sort by ASC'
+        ,desc: 'Sort by DESC'
         ,of:'of'
     }
 
