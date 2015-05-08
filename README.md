@@ -85,7 +85,7 @@ tmsTable может работать с 2 типами данных
 	//        }
 			, selectable: true
 			, rowNum: 20 // default row nums
-           , rowNums: [10, 20, 50]  // avaliable row nums for selector in table footer
+            , rowNums: [10, 20, 50]  // avaliable row nums for selector in table footer
 	//        ,afterInsertRow: function(rowId, rowData, rowObject ){rowObject.css('color','orange') }
 	    };
 	    
