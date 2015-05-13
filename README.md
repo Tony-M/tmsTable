@@ -109,6 +109,8 @@ tmsTable может работать с 2 типами данных
 	afterInsertRow: function(rowId, rowData, rowObject ) - постобработчик срабатывает после добавления строки в таблицу
 	rowNum - количество строк для запроса с сервера. Default: 10
 	rowNums - список из возможных значений rowNum для селектора в подвале страницы. Необязательный параметр.
+	show_table_header - boolean [Default:true] - показывать или нет шапку таблицы
+	show_table_fooler - boolean [Default:true] - показывать или нет подвал таблицы
 	
 
 ####Опции cols####

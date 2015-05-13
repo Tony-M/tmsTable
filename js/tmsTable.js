@@ -130,6 +130,19 @@ tmsTable = function (params) {
 
 
     /**
+     * show or hide table header
+     * @type boolean
+     * @privete
+     */
+    var _tbl_show_table_header = true;
+
+    /**
+     * show or hide table footer
+     * @type boolean
+     * @privete
+     */
+    var _tbl_show_table_footer = true;
+    /**
      * default doubleclick event
      * @param rowId
      * @param rowData
@@ -258,6 +271,22 @@ tmsTable = function (params) {
         else {
             _tbl_selectable = false;
 
+        }
+        
+        if(params.show_table_header!==undefined &&  params.show_table_header!==true && params.show_table_header!==false){
+            this.errorWrongIsNotBoolean();
+        }else{
+            if(params.show_table_header!==undefined){
+                _tbl_show_table_header = params.show_table_header;
+            }
+        }
+        
+        if(params.show_table_footer!==undefined &&  params.show_table_footer!==true && params.show_table_footer!==false){
+            this.errorWrongIsNotBoolean();
+        }else{
+            if(params.show_table_footer!==undefined){
+                _tbl_show_table_footer = params.show_table_footer;
+            }
         }
 
         if (params.rowNums !== undefined) {
@@ -603,6 +632,8 @@ tmsTable = function (params) {
         }
 
         __thead = $('<thead/>');
+        console.log(_tbl_show_table_header);
+        if(_tbl_show_table_header===false)__thead.css('display','none');
         __table.append(__thead);
 
         var h_row = $('<tr/>');
@@ -661,6 +692,7 @@ tmsTable = function (params) {
 
 
         __tfoot = $('<tfoot/>');
+        if(_tbl_show_table_footer===false)__tfoot.css('display','none');
         var tfoot_tr = $('<tr/>');
         var tfoot_td = $('<td/>').attr('colspan', (_tbl_selectable ? columns_number + 1 : columns_number));
         tfoot_tr.append(tfoot_td);
@@ -1051,11 +1083,16 @@ tmsTable = function (params) {
         throw 'Error: wrong type of rowNums. Must be Array.';
     }
 
- this.errorWrongRowNumType = function () {
+    this.errorWrongRowNumType = function () {
         throw 'Error: wrong type of rowNum. Must be Int.';
     }
-this.errorWrongRowNum = function () {
+    
+    this.errorWrongRowNum = function () {
         throw 'Error: wrong rowNum. Must be one of defined rowNums values.';
+    }
+    
+    this.errorWrongIsNotBoolean = function(){
+        throw 'Error: wrong type of boolean parametr.';
     }
 
     this.constructor(params);
