@@ -55,6 +55,11 @@
         , url: 'data.json'
         , order_direction: 'asc'
         , order_by: 'title'
+        , postVars: {
+            var_a: 'value1'
+            , var_b: function(){return new Date().getTime();}
+            , var_c: 3
+        }
 //        , show_table_header: true
 //        , show_table_footer: true
         , cols: [

@@ -160,6 +160,14 @@ tmsTable = function (params) {
     var _tbl_row_click = function (rowId, rowData) {
 
     }
+    
+    /**
+     * post vars key-value pairs
+     * @type Object
+     * @private
+     */
+    var _tbl_post_vars = {}
+    
 
     /**
      *
@@ -271,6 +279,19 @@ tmsTable = function (params) {
         else {
             _tbl_selectable = false;
 
+        }
+        
+        
+        if(params.postVars!==undefined && typeof params.postVars === 'object'){
+            for (var k in params.postVars){
+                if (params.postVars.hasOwnProperty(k)) {
+                     _tbl_post_vars[k]=params.postVars[k];
+                }
+            }
+        }else{
+            if(params.postVars!==undefined &&  typeof params.postVars !== 'object'){
+                this.errorWrongPostVars();
+            }
         }
         
         if(params.show_table_header!==undefined &&  params.show_table_header!==true && params.show_table_header!==false){
@@ -931,6 +952,9 @@ tmsTable = function (params) {
         thisobj = this;
 
         post_data = {};
+        
+        post_data = _tbl_post_vars;
+        
         post_data.order_by = _tbl_order_by;
         post_data.order_dir = _tbl_order_direction;
         post_data.page = (__select_page === null ? 1 : __select_page.val());
@@ -1093,6 +1117,10 @@ tmsTable = function (params) {
     
     this.errorWrongIsNotBoolean = function(){
         throw 'Error: wrong type of boolean parametr.';
+    }
+    
+    this.errorWrongPostVars = function(){
+        throw 'Error: post vars error.';
     }
 
     this.constructor(params);
