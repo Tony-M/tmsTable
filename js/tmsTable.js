@@ -160,14 +160,14 @@ tmsTable = function (params) {
     var _tbl_row_click = function (rowId, rowData) {
 
     }
-    
+
     /**
      * post vars key-value pairs
      * @type Object
      * @private
      */
     var _tbl_post_vars = {}
-    
+
 
     /**
      *
@@ -203,17 +203,17 @@ tmsTable = function (params) {
      */
     var _tbl_LABLES = {
         reload: 'Reload'
-        ,first_page: 'First page'
-        ,last_page: 'Last page'
-        ,previous_page: 'Previous page'
-        ,next_page: 'Next page'
-        ,current_page: 'Current page'
-        ,rows: 'Rows'
-        ,total_rows: 'Total records'
-        ,asc: 'Sort by ASC'
-        ,desc: 'Sort by DESC'
-        ,of:'of'
-        ,ajax_indicator:'Waiting for server response'
+        , first_page: 'First page'
+        , last_page: 'Last page'
+        , previous_page: 'Previous page'
+        , next_page: 'Next page'
+        , current_page: 'Current page'
+        , rows: 'Rows'
+        , total_rows: 'Total records'
+        , asc: 'Sort by ASC'
+        , desc: 'Sort by DESC'
+        , of: 'of'
+        , ajax_indicator: 'Waiting for server response'
     }
 
     /**
@@ -235,10 +235,14 @@ tmsTable = function (params) {
         return found;
     }
 
-    this.merge_options = function(obj1,obj2){
+    this.merge_options = function (obj1, obj2) {
         var obj3 = {};
-        for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-        for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+        for (var attrname in obj1) {
+            obj3[attrname] = obj1[attrname];
+        }
+        for (var attrname in obj2) {
+            obj3[attrname] = obj2[attrname];
+        }
         return obj3;
     }
 
@@ -258,7 +262,7 @@ tmsTable = function (params) {
      */
     this.constructor = function (params) {
 
-        if(tmsTable.LOCALE!==undefined && typeof (tmsTable.LOCALE)==='object'){
+        if (tmsTable.LOCALE !== undefined && typeof (tmsTable.LOCALE) === 'object') {
             _tbl_LABLES = this.merge_options(_tbl_LABLES, tmsTable.LOCALE);
         }
 
@@ -280,32 +284,32 @@ tmsTable = function (params) {
             _tbl_selectable = false;
 
         }
-        
-        
-        if(params.postVars!==undefined && typeof params.postVars === 'object'){
-            for (var k in params.postVars){
+
+
+        if (params.postVars !== undefined && typeof params.postVars === 'object') {
+            for (var k in params.postVars) {
                 if (params.postVars.hasOwnProperty(k)) {
-                     _tbl_post_vars[k]=params.postVars[k];
+                    _tbl_post_vars[k] = params.postVars[k];
                 }
             }
-        }else{
-            if(params.postVars!==undefined &&  typeof params.postVars !== 'object'){
+        } else {
+            if (params.postVars !== undefined && typeof params.postVars !== 'object') {
                 this.errorWrongPostVars();
             }
         }
-        
-        if(params.show_table_header!==undefined &&  params.show_table_header!==true && params.show_table_header!==false){
+
+        if (params.show_table_header !== undefined && params.show_table_header !== true && params.show_table_header !== false) {
             this.errorWrongIsNotBoolean();
-        }else{
-            if(params.show_table_header!==undefined){
+        } else {
+            if (params.show_table_header !== undefined) {
                 _tbl_show_table_header = params.show_table_header;
             }
         }
-        
-        if(params.show_table_footer!==undefined &&  params.show_table_footer!==true && params.show_table_footer!==false){
+
+        if (params.show_table_footer !== undefined && params.show_table_footer !== true && params.show_table_footer !== false) {
             this.errorWrongIsNotBoolean();
-        }else{
-            if(params.show_table_footer!==undefined){
+        } else {
+            if (params.show_table_footer !== undefined) {
                 _tbl_show_table_footer = params.show_table_footer;
             }
         }
@@ -318,7 +322,7 @@ tmsTable = function (params) {
             var n = params.rowNums.length;
             for (var i = 0; i < n; i++) {
                 if (!this.in_array(params.rowNums[i]), _tbl_rowNums) {
-                    if (this.isInt(params.rowNums[i]) && params.rowNums[i]>=0) {
+                    if (this.isInt(params.rowNums[i]) && params.rowNums[i] >= 0) {
                         _tbl_rowNums.push(params.rowNums[i]);
                     }
                 }
@@ -327,17 +331,17 @@ tmsTable = function (params) {
 
 
         if (params.rowNum !== undefined) {
-            if(!this.isInt(params.rowNum) || params.rowNum <0){
+            if (!this.isInt(params.rowNum) || params.rowNum < 0) {
                 this.errorWrongRowNumType();
             }
 
-            if(_tbl_rowNums.length>0 && !this.in_array(params.rowNum,_tbl_rowNums)){
+            if (_tbl_rowNums.length > 0 && !this.in_array(params.rowNum, _tbl_rowNums)) {
                 this.errorWrongRowNum();
             }
 
             _tbl_rowNum = params.rowNum;
-        }else{
-            if(_tbl_rowNums.length>0){
+        } else {
+            if (_tbl_rowNums.length > 0) {
                 _tbl_rowNum = _tbl_rowNums[0];
             }
         }
@@ -653,8 +657,7 @@ tmsTable = function (params) {
         }
 
         __thead = $('<thead/>');
-        console.log(_tbl_show_table_header);
-        if(_tbl_show_table_header===false)__thead.css('display','none');
+        if (_tbl_show_table_header === false)__thead.css('display', 'none');
         __table.append(__thead);
 
         var h_row = $('<tr/>');
@@ -713,7 +716,7 @@ tmsTable = function (params) {
 
 
         __tfoot = $('<tfoot/>');
-        if(_tbl_show_table_footer===false)__tfoot.css('display','none');
+        if (_tbl_show_table_footer === false)__tfoot.css('display', 'none');
         var tfoot_tr = $('<tr/>');
         var tfoot_td = $('<td/>').attr('colspan', (_tbl_selectable ? columns_number + 1 : columns_number));
         tfoot_tr.append(tfoot_td);
@@ -733,14 +736,14 @@ tmsTable = function (params) {
         tfoot_td.append(a_goprevious);
 
 
-        tfoot_td.append($('<label/>').text(_tbl_LABLES.current_page+':'));
+        tfoot_td.append($('<label/>').text(_tbl_LABLES.current_page + ':'));
         tfoot_td.append(__select_page);
-        var label_pages = $('<label/>').html(' '+_tbl_LABLES.of+': <span>' + _tbl_page_num + '</span>; ');
+        var label_pages = $('<label/>').html(' ' + _tbl_LABLES.of + ': <span>' + _tbl_page_num + '</span>; ');
         __span_pages = label_pages.find('span:first');
         tfoot_td.append(label_pages);
 
         __span_total = $('<span/>').text(_tbl_total);
-        tfoot_td.append($('<label/>').text(' '+_tbl_LABLES.total_rows+': ').append(__span_total));
+        tfoot_td.append($('<label/>').text(' ' + _tbl_LABLES.total_rows + ': ').append(__span_total));
 
 
         var a_gonext = $('<a/>').addClass('gonext').attr('title', _tbl_LABLES.next_page);
@@ -749,13 +752,13 @@ tmsTable = function (params) {
         var a_golast = $('<a/>').addClass('golast').attr('title', _tbl_LABLES.last_page);
         tfoot_td.append(a_golast);
 
-        if(_tbl_rowNums.length>0){
+        if (_tbl_rowNums.length > 0) {
             select_rowNums = $('<select/>').addClass('row_on_page');
-            for(var ri=0;ri<_tbl_rowNums.length;ri++){
-                var ri_opt = $('<option/>').attr('value',_tbl_rowNums[ri]).text(_tbl_rowNums[ri]);
+            for (var ri = 0; ri < _tbl_rowNums.length; ri++) {
+                var ri_opt = $('<option/>').attr('value', _tbl_rowNums[ri]).text(_tbl_rowNums[ri]);
                 select_rowNums.append(ri_opt);
             }
-            tfoot_td.append($('<label/>').text(' '+_tbl_LABLES.rows+': '));
+            tfoot_td.append($('<label/>').text(' ' + _tbl_LABLES.rows + ': '));
             tfoot_td.append(select_rowNums);
 
 
@@ -817,11 +820,14 @@ tmsTable = function (params) {
      */
     this.setSelected = function (row_index, tbody) {
         var n = _tbl_selected_rows.length;
+        var this_obj  = this;
         for (var i = 0; i < n; i++) {
             if (_tbl_selected_rows[i] == row_index) {
                 _tbl_selected_rows.splice(i, 1);
                 if (row_index == -1) {
                     __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+                    __tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this))})
+
                 }
                 return true;
             }
@@ -831,6 +837,8 @@ tmsTable = function (params) {
             _tbl_selected_rows.push(row_index);
 
             __tbody.find('tr').find('td:first').find('input').prop('checked', true);
+            __tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this))})
+
         } else {
 
             if (_tbl_selected_rows[0] == -1) {
@@ -902,7 +910,9 @@ tmsTable = function (params) {
                 var td_select = $('<td/>');
 
                 var chbx = $('<input/>').attr('type', 'checkbox').change(function () {
-                    this_object.setSelected($(this).closest('tr').index())
+                    var my_tr = $(this).closest('tr');
+                    this_object.setSelected(my_tr.index())
+                    this_object.SelectDeselectRow(my_tr);
                 });
                 td_select.append(chbx);
                 body_row.append(td_select);
@@ -934,6 +944,15 @@ tmsTable = function (params) {
         }
     }
 
+    this.SelectDeselectRow = function(row_obj){
+        if (!row_obj.hasClass('selected') && row_obj.find('td:first').find('input:first').prop('checked')) {
+            row_obj.addClass('selected');
+        } else {
+            if (row_obj.hasClass('selected')&& !row_obj.find('td:first').find('input:first').prop('checked')) {
+                row_obj.removeClass('selected')
+            }
+        }
+    }
     /**
      * return name of table in selectcet container
      * @returns {string}
@@ -952,9 +971,9 @@ tmsTable = function (params) {
         thisobj = this;
 
         post_data = {};
-        
+
         post_data = _tbl_post_vars;
-        
+
         post_data.order_by = _tbl_order_by;
         post_data.order_dir = _tbl_order_direction;
         post_data.page = (__select_page === null ? 1 : __select_page.val());
@@ -976,18 +995,18 @@ tmsTable = function (params) {
                     throw  'page 500';
                 }
             }
-            , beforeSend : function(){
+            , beforeSend: function () {
                 var t = thisobj.getTableId();
-                var t = $('#'+ t).find('tbody:first');
+                var t = $('#' + t).find('tbody:first');
                 var height = t.height();
                 var width = t.width();
                 var position = t.position();
 
-                if(width!==null && height!==null && position!==undefined){
+                if (width !== null && height !== null && position !== undefined) {
 
                     ajax_indicator.css('top', position.top).css('left', position.left).height(height).width(width);
-                    ajax_indicator.find('div:first').css('margin-top', height/2);
-                    if(ajax_indicator.hasClass('hidden')){
+                    ajax_indicator.find('div:first').css('margin-top', height / 2);
+                    if (ajax_indicator.hasClass('hidden')) {
                         ajax_indicator.removeClass('hidden');
                     }
                 }
@@ -1004,7 +1023,7 @@ tmsTable = function (params) {
                 }
             }
             , complete: function () {
-                if(!$(ajax_indicator).hasClass('hidden'))$(ajax_indicator).addClass('hidden');
+                if (!$(ajax_indicator).hasClass('hidden'))$(ajax_indicator).addClass('hidden');
             }
         });
     }
@@ -1110,16 +1129,16 @@ tmsTable = function (params) {
     this.errorWrongRowNumType = function () {
         throw 'Error: wrong type of rowNum. Must be Int.';
     }
-    
+
     this.errorWrongRowNum = function () {
         throw 'Error: wrong rowNum. Must be one of defined rowNums values.';
     }
-    
-    this.errorWrongIsNotBoolean = function(){
+
+    this.errorWrongIsNotBoolean = function () {
         throw 'Error: wrong type of boolean parametr.';
     }
-    
-    this.errorWrongPostVars = function(){
+
+    this.errorWrongPostVars = function () {
         throw 'Error: post vars error.';
     }
 
