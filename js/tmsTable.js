@@ -196,6 +196,13 @@ tmsTable = function (params) {
     var __span_pages = null;
     var __span_total = null;
 
+
+    /**
+     * index of last selected tbody row
+     * @type integer default null
+     * @private
+     */
+    var __last_selected_row_index = null;
     /**
      * array of lables
      * @type {{reload: string, first_page: string, last_page: string, previous_page: string, next_page: string, current_page: string, rows: string, total_rows: string, asc: string, desc: string, of: string, ajax_indicator: string}}
@@ -819,10 +826,202 @@ tmsTable = function (params) {
      * @returns {boolean}
      */
     this.setSelected = function (row_index, tbody) {
-        var n = _tbl_selected_rows.length;
         var this_obj = this;
+
+        if (row_index == -1) {
+            if (_tbl_selected_rows.length && _tbl_selected_rows[0] == -1) {
+                _tbl_selected_rows = [];
+                __thead.find('tr').find('th:first').find('input').prop('checked', false);
+                __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+            } else {
+                _tbl_selected_rows = [];
+                _tbl_selected_rows.push(-1);
+                __thead.find('tr').find('th:first').find('input').prop('checked', true);
+                __tbody.find('tr').find('td:first').find('input').prop('checked', true);
+            }
+            __tbody.find('tr').each(function () {
+                this_obj.SelectDeselectRow($(this), true)
+            })
+            __last_selected_row_index = null;
+            return true;
+        } else {
+            var last_selected_row_index = __last_selected_row_index; // id последней выбранной строки
+            var is_last_selected_row_really_selected = false; // былали последняя кликнутая строке выбранной?
+
+            if (last_selected_row_index !== null) {
+                var is_last_selected_row_really_selected = __tbody.find('tr:eq(' + last_selected_row_index + ')').hasClass('selected');
+            }
+
+            var current_row = __tbody.find('tr:eq(' + row_index + ')');
+            var is_current_row_selected = current_row.hasClass('selected');
+
+            // если клавиша не зажата то тупо снять выделение со всего и выделить только одну запись
+            if (!window.event.ctrlKey && !window.event.shiftKey) {
+                _tbl_selected_rows = [];
+                __thead.find('tr').find('th:first').find('input').prop('checked', false);
+                __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+                __tbody.find('tr').each(function () {
+                    this_obj.SelectDeselectRow($(this), true);
+                })
+
+
+                __tbody.find('tr').eq(row_index).find('td:first').find('input').prop('checked', true);
+                this_obj.SelectDeselectRow(current_row, true);
+                _tbl_selected_rows.push(row_index);
+                __last_selected_row_index = row_index;
+                return true;
+            }
+
+            if (window.event.ctrlKey) {
+
+                // уже выбрано все
+                if (_tbl_selected_rows.length && _tbl_selected_rows[0] == -1) {
+                    __thead.find('tr').find('th:first').find('input').prop('checked', false);
+
+                    var n = __tbody.find('tr').length;
+                    _tbl_selected_rows = [];
+                    for (var i = 0; i < n; i++) {
+                        if (i != row_index) {
+                            _tbl_selected_rows.push(i);
+                        }
+                        current_row.prop('checked', false);
+                        this_obj.SelectDeselectRow(current_row, true)
+
+                    }
+                    return true;
+                } else {
+                    var n = _tbl_selected_rows.length;
+                    for (var i = 0; i < n; i++) {
+                        if (_tbl_selected_rows[i] == row_index) {
+                            _tbl_selected_rows.splice(i, 1);
+                            current_row.prop('checked', false);
+                            this_obj.SelectDeselectRow(current_row, true);
+                            __last_selected_row_index = row_index; //----------------------- null
+                            return true;
+                        }
+                    }
+                    current_row.prop('checked', true);
+                    this_obj.SelectDeselectRow(current_row, true);
+                    __last_selected_row_index = row_index;
+                    _tbl_selected_rows.push(row_index);
+                    return true;
+                }
+
+            }
+
+
+            /////// here
+            if (window.event.shiftKey && __last_selected_row_index !== null) {
+                if (is_last_selected_row_really_selected) {
+                    //SELECT
+                    if (last_selected_row_index <= row_index - 1) {
+                        for (var ri = last_selected_row_index + 1; ri <= row_index; ri++) {
+                            console.log('select row index ' + ri);
+                            if (!__tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked')) {
+                                __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', true);
+                                _tbl_selected_rows.push(ri);
+                                this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                            }
+                        }
+                        _tbl_selected_rows.push(row_index);
+                    }
+                    if (last_selected_row_index >= row_index + 1) {
+                        for (ri = row_index + 1; ri <= last_selected_row_index; ri++) {
+                            //console.log('select row '+ri);
+                            if (!__tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked')) {
+                                __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', true);
+                                _tbl_selected_rows.push(ri);
+                                this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                            }
+                        }
+                        _tbl_selected_rows.push(row_index);
+                    }
+                }else{
+                    //DESELECT
+                    //console.log('DESELECT')
+                    if (last_selected_row_index <= row_index - 1) {
+                        for (var ri = last_selected_row_index + 1; ri <= row_index; ri++) {
+                            //console.log('deselect row index ' + ri, _tbl_selected_rows);
+
+                            var n = _tbl_selected_rows.length;
+                            for(var j=0;j<n;j++){
+                                //console.log(ri, _tbl_selected_rows);
+                                if(_tbl_selected_rows[j]==ri){
+                                    _tbl_selected_rows.splice(j, 1);
+                                    __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', false);
+                                    this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                                    //console.log('rm '+ri)
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (last_selected_row_index >= row_index + 1) {
+                        for (ri = row_index ; ri <= last_selected_row_index; ri++) {
+                            var n = _tbl_selected_rows.length;
+                            for(var j=0;j<n;j++){
+                                console.log(ri, _tbl_selected_rows);
+                                if(_tbl_selected_rows[j]==ri){
+                                    _tbl_selected_rows.splice(j, 1);
+                                    __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', false);
+                                    this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                                    console.log('rm '+ri)
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    return true;
+                }
+            } else {
+                _tbl_selected_rows = [];
+                __thead.find('tr').find('th:first').find('input').prop('checked', false);
+                __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+                __tbody.find('tr').each(function () {
+                    this_obj.SelectDeselectRow($(this), true);
+                })
+
+
+                __tbody.find('tr').eq(row_index).find('td:first').find('input').prop('checked', true);
+                this_obj.SelectDeselectRow(current_row, true);
+                _tbl_selected_rows.push(row_index);
+                __last_selected_row_index = row_index;
+                return true;
+            }
+
+
+        }
+
+
+        return true; //////// end
+
+
+        // если клавиша не зажата то тупо снять выделение со всего и выделить только одну запись
+        if (!window.event.ctrlKey && !window.event.shiftKey) {
+            _tbl_selected_rows = [];
+            __thead.find('tr').find('th:first').find('input').prop('checked', false);
+            __tbody.find('tr').find('td:first').find('input').prop('checked', false);
+            __tbody.find('tr').each(function () {
+                this_obj.SelectDeselectRow($(this), true)
+            })
+
+            __tbody.find('tr').eq(row_index).find('td:first').find('input').prop('checked', true);
+            this_obj.SelectDeselectRow(__tbody.find('tr').eq(row_index), true)
+        }
+
+
+        if (window.event.ctrlKey) {
+
+        }
+
+
+        var n = _tbl_selected_rows.length;
+
+
         for (var i = 0; i < n; i++) {
             if (_tbl_selected_rows[i] == row_index) {
+                __last_selected_row_index = null;
                 _tbl_selected_rows.splice(i, 1);
                 if (row_index == -1) {
                     __tbody.find('tr').find('td:first').find('input').prop('checked', false);
@@ -843,8 +1042,6 @@ tmsTable = function (params) {
                 this_obj.SelectDeselectRow($(this), true)
             })
 
-            //__tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this))})
-
         } else {
 
             if (_tbl_selected_rows[0] == -1) {
@@ -852,9 +1049,40 @@ tmsTable = function (params) {
                 _tbl_selected_rows = Array.apply(null, {length: n}).map(Number.call, Number);
                 _tbl_selected_rows.splice(row_index, 1);
                 __thead.find('tr').find('th:first').find('input').prop('checked', false);
-
+                __last_selected_row_index = null;
             } else {
+
+
+
+                //если зажат shift тогда надо выдедить диапозон
+                if (window.event.shiftKey && __last_selected_row_index !== null) {
+
+                    if (last_selected_row_index < row_index - 1) {
+                        for (var ri = last_selected_row_index + 1; ri <= row_index; ri++) {
+                            //console.log('select row '+ri);
+                            if (!__tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked')) {
+                                __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', true);
+                                _tbl_selected_rows.push(ri);
+                                this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                            }
+                        }
+                    }
+                    if (last_selected_row_index > row_index + 1) {
+                        for (ri = row_index + 1; ri <= last_selected_row_index; ri++) {
+                            //console.log('select row '+ri);
+                            if (!__tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked')) {
+                                __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', true);
+                                _tbl_selected_rows.push(ri);
+                                this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                            }
+                        }
+                    }
+                }
+
+                __last_selected_row_index = row_index;
                 _tbl_selected_rows.push(row_index);
+
+
             }
         }
         return true;
@@ -866,7 +1094,7 @@ tmsTable = function (params) {
      * @returns {Array}
      */
     this.getSelectedIndexes = function () {
-        return _tbl_selected_rows;
+        return _tbl_selected_rows.sort();
     }
 
     /**
@@ -928,7 +1156,7 @@ tmsTable = function (params) {
                     var my_tr = $(this).closest('tr');
                     //my_tr.click();
 
-                    $(this).prop('checked',  $(this).prop('checked') ? false : true);
+                    $(this).prop('checked', $(this).prop('checked') ? false : true);
 
                     //this_object.setSelected(my_tr.index())
                     //this_object.SelectDeselectRow(my_tr);
