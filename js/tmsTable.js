@@ -826,7 +826,7 @@ tmsTable = function (params) {
                 _tbl_selected_rows.splice(i, 1);
                 if (row_index == -1) {
                     __tbody.find('tr').find('td:first').find('input').prop('checked', false);
-                    __tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this))})
+                    __tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this),true)})
 
                 }
                 return true;
@@ -837,7 +837,9 @@ tmsTable = function (params) {
             _tbl_selected_rows.push(row_index);
 
             __tbody.find('tr').find('td:first').find('input').prop('checked', true);
-            __tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this))})
+            __tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this), true)})
+
+            //__tbody.find('tr').each(function(){this_obj.SelectDeselectRow($(this))})
 
         } else {
 
@@ -911,7 +913,7 @@ tmsTable = function (params) {
 
                 var chbx = $('<input/>').attr('type', 'checkbox').change(function () {
                     var my_tr = $(this).closest('tr');
-                    this_object.setSelected(my_tr.index())
+                    //this_object.setSelected(my_tr.index())
                     this_object.SelectDeselectRow(my_tr);
                 });
                 td_select.append(chbx);
@@ -944,7 +946,12 @@ tmsTable = function (params) {
         }
     }
 
-    this.SelectDeselectRow = function(row_obj){
+    this.SelectDeselectRow = function(row_obj, only_css){
+        if(only_css===undefined)only_css=false;
+
+        if(!only_css){
+            this.setSelected(row_obj.index());
+        }
         if (!row_obj.hasClass('selected') && row_obj.find('td:first').find('input:first').prop('checked')) {
             row_obj.addClass('selected');
         } else {
