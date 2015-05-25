@@ -7,7 +7,7 @@
  */
 tmsTable = function (params) {
 
-    var VERSION = '15.05.19';
+    var VERSION = '25.05.19';
     /**
      * table DOM id
      * @type {string}
@@ -773,8 +773,8 @@ tmsTable = function (params) {
             select_rowNums.bind('change', function () {
                 this_object.unselectAllRows();
                 _tbl_rowNum = select_rowNums.val();
-
-                this_object.reloadRows()
+                this_object.goToPage(1);
+                //this_object.reloadRows()
             })
         }
 
