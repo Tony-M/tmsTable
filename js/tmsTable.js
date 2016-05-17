@@ -700,6 +700,10 @@ tmsTable = function (params) {
                 h_td.css('width', _tbl_cols[i].width)
             }
 
+            if (_tbl_cols[i].align !== null) {
+                h_td.css('text-align', _tbl_cols[i].align)
+            }
+
             if (_tbl_cols[i].sortable) {
                 var sort = $('<span/>');
                 var sort_asc = $('<span/>').addClass('orderasc').html('&#9651;').attr('title', _tbl_LABLES.asc);
@@ -1065,6 +1069,10 @@ tmsTable = function (params) {
                     //td.html(_tbl_data[i][_tbl_cols[ci].index]);
 
                     td.html(_tbl_cols[ci].decorator(i, _tbl_data[i], body_row, _tbl_data[i][_tbl_cols[ci].index]))
+
+                    if (_tbl_cols[ci].align !== null) {
+                        td.css('text-align', _tbl_cols[ci].align)
+                    }
 
                     body_row.append(td);
                 }
