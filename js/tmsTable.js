@@ -7,7 +7,7 @@
  */
 tmsTable = function (params) {
 
-    var VERSION = '25.05.19';
+    var VERSION = '16.05.17';
     /**
      * table DOM id
      * @type {string}
@@ -159,6 +159,17 @@ tmsTable = function (params) {
      */
     var _tbl_row_click = function (rowId, rowData) {
 
+    }
+
+    /**
+     * callback processed on sort order change
+     * @param order_by column name
+     * @param order_dir  asc|decs
+     * @returns {boolean}
+     * @private
+     */
+    var _tbl_sort_order_change_action = function (order_by, order_dir) {
+        return true;
     }
 
     /**
@@ -438,6 +449,9 @@ tmsTable = function (params) {
             _tbl_after_row_insert = params.afterInsertRow;
         }
 
+        if (params.onSortOrderChangeAction !== undefined) {
+            _tbl_sort_order_change_action = params.onSortOrderChangeAction;
+        }
 
         // add instance to collection of same type objects
         tmsTable.instances.push(this);
@@ -708,6 +722,7 @@ tmsTable = function (params) {
                         if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
                     });
                     $(this).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
+
                 })
             }
 
@@ -935,8 +950,8 @@ tmsTable = function (params) {
 
                     if (last_selected_row_index >= row_index + 1) {
                         for (ri = row_index; ri <= last_selected_row_index; ri++) {
-                                    __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', false);
-                                    this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
+                            __tbody.find('tr').eq(ri).find('td:first').find('input').prop('checked', false);
+                            this_obj.SelectDeselectRow(__tbody.find('tr').eq(ri), true)
                         }
                     }
                     return true;
@@ -1170,8 +1185,17 @@ tmsTable = function (params) {
             _tbl_order_by = order_by;
             _tbl_order_direction = 'asc';
         }
-        this.unselectAllRows();
-        this.reloadRows();
+
+        var todo = true;
+        if (_tbl_sort_order_change_action !== null) {
+            todo = _tbl_sort_order_change_action(_tbl_order_by, _tbl_order_direction);
+            if (todo !== false) todo = true;
+        }
+
+        if (todo) {
+            this.unselectAllRows();
+            this.reloadRows();
+        }
     }
 
 
