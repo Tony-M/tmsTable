@@ -722,11 +722,6 @@ tmsTable = function (params) {
                 h_td.attr('sidx', _tbl_cols[i].index).append(sort);
                 h_td.bind('click', function () {
                     this_object.orderBy($(this).attr('sidx'));
-                    h_row.find('.orderasc, .orderdesc').each(function () {
-                        if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
-                    });
-                    $(this).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
-
                 })
             }
 
@@ -1186,12 +1181,24 @@ tmsTable = function (params) {
      * @param order_by
      * @param direction
      */
-    this.orderBy = function (order_by) {
+    this.orderBy = function (order_by, direction) {
+        var dir_flag = false;
+        if (direction !== undefined) {
+            if (direction == 'asc' || direction == 'desc') {
+                dir_flag = true;
+            }
+        }
+
         if (_tbl_order_by == order_by) {
-            _tbl_order_direction = (_tbl_order_direction == 'asc' ? 'desc' : 'asc');
+            if (!dir_flag) {
+                _tbl_order_direction = (_tbl_order_direction == 'asc' ? 'desc' : 'asc');
+            } else {
+                _tbl_order_direction = direction;
+            }
         } else {
             _tbl_order_by = order_by;
-            _tbl_order_direction = 'asc';
+
+            _tbl_order_direction = (dir_flag ? direction : 'asc');
         }
 
         var todo = true;
@@ -1200,10 +1207,23 @@ tmsTable = function (params) {
             if (todo !== false) todo = true;
         }
 
+        var td_sorted = null;
+        __thead.find('th').each(function () {
+            var th = $(this);
+
+            if (th.attr('sidx') == _tbl_order_by) {
+                td_sorted = th;
+            }
+        });
+
+        this.refreshSortingIndicators(td_sorted);
+
         if (todo) {
             this.unselectAllRows();
             this.reloadRows();
         }
+
+
     }
 
 
@@ -1212,6 +1232,15 @@ tmsTable = function (params) {
         __tbody.find('tr').find('td:first').find('input').prop('checked', false);
         __thead.find('tr').find('th:first').find('input').prop('checked', false);
 
+    }
+
+    this.refreshSortingIndicators = function (td) {
+
+        __thead.find('.orderasc, .orderdesc').each(function () {
+            if (!$(this).hasClass('hidden'))$(this).addClass('hidden');
+        });
+        if (td !== undefined && td != null)
+            $(td).find('.order' + _tbl_order_direction + ':first').removeClass('hidden');
     }
 
     /**
